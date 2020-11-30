@@ -1,3 +1,7 @@
-/Data/Good/
-/Data/Rotten/
-Prediction
+Data/Good/*
+Data/Rotten/*
+Prediction/*
+
+!Data/Rotten/.image (1).jpeg 
+!Data/Rotten/.image (1).jpeg  
+!Prediction/.image (1).jpeg 
