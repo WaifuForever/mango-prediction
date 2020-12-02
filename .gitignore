@@ -1,7 +1,15 @@
-Data/Good/*
-Data/Rotten/*
-Prediction/*
+Data/Training/Good/*
+Data/Training/Rotten/*
+Data/Prediction/*
+Data/Models/*
+Data/Result/Good/*
+Data/Result/Rotten/*
 
-!Data/Good/image (1).jpeg 
-!Data/Rotten/image (1).jpeg  
-!Prediction/image (1).jpeg 
+
+
+!Data/Training/Good/image (1).jpeg 
+!Data/Training/Rotten/image (1).jpeg  
+!Data/Models/model_1.h5
+!Data/Prediction/image (1).jpeg 
+!Data/Result/Good/image (1).jpeg 
+!Data/Result/Rotten/image (1).jpeg 
