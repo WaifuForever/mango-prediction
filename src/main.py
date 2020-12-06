@@ -213,7 +213,7 @@ def train_data(model, epochs):
   )
   if model == None:
     num_classes = 2
-
+    #THIS CURRENT MODEL IS NOT WORKING!!
     model = Sequential([
       layers.experimental.preprocessing.Rescaling(1./255, input_shape=(height, width, 3)),
       data_augmentation,
