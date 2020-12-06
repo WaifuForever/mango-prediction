@@ -7,8 +7,8 @@ Data/Result/Rotten/*
 .vscode
 
 
-!Data/Training/Good/image (1).jpeg 
-!Data/Training/Rotten/image (1).jpeg  
+!Data/Training/Good/mL01_001F.jpg 
+!Data/Training/Rotten/mL01_003F.jpg  
 !Models/model_1.h5
 !Models/model_1.json
 !Data/Prediction/image (1).jpeg 
