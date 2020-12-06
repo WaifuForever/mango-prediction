@@ -1,5 +1,5 @@
 import os
-TRAINING_DIR = 'C:/Users/Waifu/Desktop/data/Prediction/'
+TRAINING_DIR = 'C:/Vs Projects/Python/TensorEnd/Data/Training/Rotten/'
 
 print(os.listdir(TRAINING_DIR))
 
