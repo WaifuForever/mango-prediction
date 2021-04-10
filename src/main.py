@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import PIL
 
+import sys 
+
+from Charts.bar import *
 
 import tensorflow as tf
 import h5py
@@ -36,7 +39,7 @@ default_epochs = 15
 width = 686
 height = 656
 batch_size = 32
-
+total_training_data = 0
 
 
 
@@ -98,6 +101,7 @@ def load_model(model_name):
 
       elif option == 2:
         predict(loaded_model)
+        evaluate_perfomance(model_name)
       elif option == 3:
         loaded_model.summary()        
   
@@ -150,7 +154,8 @@ def create_model(model_name):
         epochs = default_epochs
         print("Number of generations set to %d" % default_epochs)
         break
-  
+    
+   
     model = train_data(None, epochs)
   
     try:
@@ -175,33 +180,37 @@ def create_model(model_name):
 
     show_data(model.history, epochs, model_name)
     predict(model)
+    #evaluate_perfomance(model_name)
   
   
 def resize_images():
+  total_training_data = 0
   good_images = []
   rotten_images = []
   for f in os.listdir(TRAINING_DIR+'/Good'):
-   if os.path.isfile(os.path.join(TRAINING_DIR+'/Good', f)):   
-    image = PIL.Image.open(TRAINING_DIR+'/Good/'+ f)
-    new_image = image.resize((width, height))
-    new_image.save(TRAINING_DIR+'/Good/' + f)
-    good_images.append(f)
+    if os.path.isfile(os.path.join(TRAINING_DIR+'/Good', f)):   
+      image = PIL.Image.open(TRAINING_DIR+'/Good/'+ f)
+      new_image = image.resize((width, height))
+      new_image.save(TRAINING_DIR+'/Good/' + f)
+      good_images.append(f)
+      total_training_data+=1
+    
 
   for f in os.listdir(TRAINING_DIR+'/Rotten'):
-   if os.path.isfile(os.path.join(TRAINING_DIR+'/Rotten', f)):   
-    image = PIL.Image.open(TRAINING_DIR+'/Rotten/' + f)
-    new_image = image.resize((width, height))
-    new_image.save(TRAINING_DIR+'/Rotten/' + f)   
-    rotten_images.append(f)
+    if os.path.isfile(os.path.join(TRAINING_DIR+'/Rotten', f)):   
+      image = PIL.Image.open(TRAINING_DIR+'/Rotten/' + f)
+      new_image = image.resize((width, height))
+      new_image.save(TRAINING_DIR+'/Rotten/' + f)   
+      rotten_images.append(f)
+      total_training_data+=1
   
-  print()
+  
 
 def train_data(model, epochs):  
   
   global class_names
 
   DIR = pathlib.Path(TRAINING_DIR)
-
   resize_images()
   
   train_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -295,14 +304,27 @@ def show_data(history, epochs, model_name):
  
   plt.show()
 
-def predict(model):
-  
-  DIR = PREDICTION_DIR
+def predict(model):  
+
+  while True:        
+      print('Which Data should be analyzed?')     
+      print("Select a Option:")
+      print("1 - From Training Folder ")
+      print("2 - From Prediction Folder")
+      op = int(input())
+      if op == 1:
+        DIR = pathlib.Path(TRAINING_DIR)
+        break;
+      elif op == 2:
+        DIR = pathlib.Path(PREDICTION_DIR)
+        break;
+      else:
+        print("Invalid option!!\n")
+ 
   onlyfiles = [f for f in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, f))]
   image_count = len(list(onlyfiles))
 
   for x in range (0, image_count):
-
     
     current_path = DIR + '/' + onlyfiles[x]
     image = PIL.Image.open(current_path)
@@ -317,6 +339,7 @@ def predict(model):
     score = tf.nn.softmax(predictions[0])
     if(np.argmax(score) == 0):     
       copyfile(current_path, RESULT_DIR + '/Good/' + onlyfiles[x])
+      
     else:
       copyfile(current_path, RESULT_DIR + '/Rotten/' + onlyfiles[x])
     
@@ -326,6 +349,48 @@ def predict(model):
         "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
         .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
     )
+  
+    
+
+def evaluate_perfomance(model_name):
+  
+  
+  os.system("python ./Charts/bar.py")
+  hits_g = 0
+  hits_r = 0
+
+  for count, filename in enumerate(os.listdir(RESULT_DIR + '/Good/')):
+    if filename.startswith('G'):
+      hits_g+=1 
+
+
+  for filename in enumerate(os.listdir(RESULT_DIR + '/Rotten/')):    
+    if filename.startswith('R'):
+      hits_r+=1 
+  
+  p1 = Bar(model_name, [hits_g, hits_r], total_training_data)
+  p1.run()
+
+def track_data():
+  for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
+    
+    src = TRAINING_DIR + '/Good/' + filename[1]
+    
+    dst = TRAINING_DIR + '/Good/G - '+ filename[1]
+      
+    # rename() function will
+    # rename all the files
+    os.rename(src, dst)
+
+  for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
+    
+    src = TRAINING_DIR + '/Rotten/' + filename[1]
+    dst =TRAINING_DIR + '/Rotten/R - '+ filename[1]
+      
+    # rename() function will
+    # rename all the files
+    os.rename(src, dst)
+  print("the data has been tracked")
 
 
 #still not working
@@ -346,7 +411,8 @@ while True:
   print("Select a Option:")
   print("1 - Create a new model")
   print("2 - Select a existing model")
-  print("3 - End Program")
+  print("3 - Track training data")
+  print("4 - End Program")
 
   option = int(input())
 
@@ -355,6 +421,8 @@ while True:
   elif option == 2:
     load_model(input("Enter model name: "))
   elif option == 3:
+    track_data()
+  elif option == 4:
     break;
   
   else:
