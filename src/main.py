@@ -8,7 +8,7 @@ import PIL
 
 import sys 
 
-from Charts.bar import *
+from Charts.bar import Bar
 
 import tensorflow as tf
 import h5py
@@ -133,14 +133,12 @@ def load_model(model_name):
      
     
 
-  
-
 def create_model(model_name):
-  if os.path.isfile(MODEL_DIR + model_name + '.h5') is True or model_name == 'exit':
+  if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True or model_name == 'exit':
     while True:
       print("This name is already in use")
       model_name = input("Enter model name: ")
-      if os.path.isfile(MODEL_DIR + model_name + '.h5') is False or model_name == 'exit':
+      if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False or model_name == 'exit':
         break
   
   if model_name != 'exit':    
@@ -374,22 +372,21 @@ def evaluate_perfomance(model_name):
 def track_data():
   for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
     
-    src = TRAINING_DIR + '/Good/' + filename[1]
-    
-    dst = TRAINING_DIR + '/Good/G - '+ filename[1]
-      
-    # rename() function will
-    # rename all the files
-    os.rename(src, dst)
+    if not filename[1].startswith('G - '):
+      src = TRAINING_DIR + '/Good/' + filename[1]    
+      dst = TRAINING_DIR + '/Good/G - '+ filename[1]
+      os.rename(src, dst)
+
+ 
 
   for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
-    
-    src = TRAINING_DIR + '/Rotten/' + filename[1]
-    dst =TRAINING_DIR + '/Rotten/R - '+ filename[1]
-      
-    # rename() function will
-    # rename all the files
-    os.rename(src, dst)
+    if not filename[1].startswith('R - '):
+      src = TRAINING_DIR + '/Rotten/' + filename[1]
+      dst =TRAINING_DIR + '/Rotten/R - '+ filename[1]
+      os.rename(src, dst)
+   
+  
+   
   print("the data has been tracked")
 
 
