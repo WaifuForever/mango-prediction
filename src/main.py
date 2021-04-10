@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import PIL
 
+
 import tensorflow as tf
 import h5py
 import msvcrt
@@ -40,13 +41,13 @@ batch_size = 32
 
 
 def load_model(model_name):
-  if os.path.isfile(MODEL_DIR + model_name + '.h5') is True:
-    json_file = open(MODEL_DIR + model_name + '.json', 'r')
+  if os.path.isfile(MODEL_DIR + model_name + '/' + model_name +  '.h5') is True:
+    json_file = open(MODEL_DIR + model_name + '/' + model_name + '.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights(MODEL_DIR + model_name + '.h5')
+    loaded_model.load_weights(MODEL_DIR + model_name + '/' + model_name + '.h5')
     
     print("Loaded model from disk")
 
@@ -56,13 +57,13 @@ def load_model(model_name):
       model_name = input("Enter model name: ")
       if model_name == 'exit':
         break;
-      if os.path.isfile(MODEL_DIR + model_name + '.h5') is True:
-        json_file = open(MODEL_DIR + model_name + '.json', 'r')
+      if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True:
+        json_file = open(MODEL_DIR + model_name + '/' + model_name + '.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights(MODEL_DIR + model_name + '.h5')
+        loaded_model.load_weights(MODEL_DIR + model_name + '/' + model_name + '.h5')
         print("Loaded model from disk")
 
         
@@ -98,8 +99,15 @@ def load_model(model_name):
       elif option == 2:
         predict(loaded_model)
       elif option == 3:
-        loaded_model.summary()
-        show_data(loaded_model.history)
+        loaded_model.summary()        
+  
+        # open method used to open different extension image file
+        im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '.png') 
+          
+        # This method will show image in any image viewer 
+        im.show() 
+       
+        
       
       elif option == 4:
         print("End Program.")
@@ -109,10 +117,16 @@ def load_model(model_name):
         print("Invalid option!!\n")
     
 
-    if os.path.isfile(MODEL_DIR + model_name) is False:
-      loaded_model.save(MODEL_DIR + model_name + '1')
+    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
+      loaded_model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
+      
 
-    
+    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.json') is False:
+      model_json = loaded_model.to_json()
+      with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
+        json_file.write(model_json)
+      
+     
     
 
   
@@ -138,18 +152,28 @@ def create_model(model_name):
         break
   
     model = train_data(None, epochs)
-
+  
+    try:
+      os.mkdir(MODEL_DIR + model_name + '/')
+    except OSError:
+      print ("Creation of the directory for %s failed" % model_name)
+    else:
+      print ("Successfully created the directory for %s " % model_name)
+    
     model_json = model.to_json()
-    with open(MODEL_DIR + model_name + ".json", "w") as json_file:
+    with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
         json_file.write(model_json)
     # serialize weights to HDF5
-    model.save_weights(MODEL_DIR + model_name + ".h5")
+    model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
     print("Saved model to disk")
 
-    if os.path.isfile(MODEL_DIR + model_name + '.h5') is False:
-      model.save(MODEL_DIR + model_name)
+    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
+      model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
+     
 
-    show_data(model.history, epochs)
+    #model.save(MODEL_DIR + model_name + '/'+ model_name)
+
+    show_data(model.history, epochs, model_name)
     predict(model)
   
   
@@ -245,7 +269,7 @@ def train_data(model, epochs):
   )
   return model
 
-def show_data(history, epochs):
+def show_data(history, epochs, model_name):
 
   acc = history.history['accuracy']
   val_acc = history.history['val_accuracy']
@@ -267,6 +291,8 @@ def show_data(history, epochs):
   plt.plot(epochs_range, val_loss, label='Validation Loss')
   plt.legend(loc='upper right')
   plt.title('Training and Validation Loss')
+  plt.savefig(MODEL_DIR + model_name + '/'+ model_name +'.png')
+ 
   plt.show()
 
 def predict(model):
