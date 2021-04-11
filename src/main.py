@@ -5,7 +5,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL
-
+import json
 import sys 
 
 from Charts.bar import Bar
@@ -35,7 +35,7 @@ MODEL_DIR = "./Models/"
 
 
 
-default_epochs = 15
+default_epochs = 3
 width = 686
 height = 656
 batch_size = 32
@@ -104,14 +104,20 @@ def load_model(model_name):
         evaluate_perfomance(model_name)
       elif option == 3:
         loaded_model.summary()        
-  
-        # open method used to open different extension image file
-        im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '.png') 
-          
-        # This method will show image in any image viewer 
-        im.show() 
        
         
+        # open method used to open different extension image file
+        try:
+          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '.png')        
+          im.show()
+        except:
+          show_data(model_name)
+        
+        try:       
+          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') 
+          im.show() 
+        except:
+          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
       
       elif option == 4:
         
@@ -129,9 +135,7 @@ def load_model(model_name):
       model_json = loaded_model.to_json()
       with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
         json_file.write(model_json)
-      
-     
-    
+          
 
 def create_model(model_name):
   if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True or model_name == 'exit':
@@ -154,29 +158,13 @@ def create_model(model_name):
         break
     
    
-    model = train_data(None, epochs)
+    model = train_data(None, model_name, epochs)
   
-    try:
-      os.mkdir(MODEL_DIR + model_name + '/')
-    except OSError:
-      print ("Creation of the directory for %s failed" % model_name)
-    else:
-      print ("Successfully created the directory for %s " % model_name)
-    
-    model_json = model.to_json()
-    with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
-    print("Saved model to disk")
-
-    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
-      model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
      
 
     #model.save(MODEL_DIR + model_name + '/'+ model_name)
 
-    show_data(model.history, epochs, model_name)
+    show_data(model_name)
     predict(model)
     #evaluate_perfomance(model_name)
   
@@ -201,10 +189,9 @@ def resize_images():
       new_image.save(TRAINING_DIR+'/Rotten/' + f)   
       rotten_images.append(f)
       total_training_data+=1
-  
-  
+    
 
-def train_data(model, epochs):  
+def train_data(model, model_name, epochs):  
   
   global class_names
 
@@ -274,9 +261,7 @@ def train_data(model, epochs):
   epochs=epochs
   
   )
-  return model
 
-def show_data(history, epochs, model_name):
 
   acc = history.history['accuracy']
   val_acc = history.history['val_accuracy']
@@ -286,22 +271,61 @@ def show_data(history, epochs, model_name):
 
   epochs_range = range(epochs)
 
-  plt.figure(figsize=(8, 8))
-  plt.subplot(1, 2, 1)
-  plt.plot(epochs_range, acc, label='Training Accuracy')
-  plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-  plt.legend(loc='lower right')
-  plt.title('Training and Validation Accuracy')
+  try:
+    os.mkdir(MODEL_DIR + model_name + '/')
+  except OSError:
+    print ("Creation of the directory for %s failed" % model_name)
+  else:
+    print ("Successfully created the directory for %s " % model_name)
+  
+  model_json = model.to_json()
+  with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
+      json_file.write(model_json)
+  # serialize weights to HDF5
+  model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
+  print("Saved model to disk\n")
 
-  plt.subplot(1, 2, 2)
-  plt.plot(epochs_range, loss, label='Training Loss')
-  plt.plot(epochs_range, val_loss, label='Validation Loss')
-  plt.legend(loc='upper right')
-  plt.title('Training and Validation Loss')
-  plt.savefig(MODEL_DIR + model_name + '/'+ model_name +'.png')
- 
-  plt.show()
+  if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
+    model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
+  
+  
+  data = ({
+      'acc': acc,
+      'val_acc': val_acc,
+      'loss': loss,
+      'val_loss': val_loss,
+      'epochs_range' : default_epochs
+  })
 
+  with open(MODEL_DIR + model_name + '/' + model_name + '_data.txt', 'w') as outfile:
+      json.dump(data, outfile)
+
+  return model
+
+
+def show_data(model_name):
+  try:
+    with open( MODEL_DIR + model_name + '/' + model_name + '_data.txt') as json_file:
+      data = json.load(json_file)
+      epochs = range(data['epochs_range'])
+
+      plt.figure(figsize=(8, 8))
+      plt.subplot(1, 2, 1)
+      plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='.')
+      plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='.')
+      plt.legend(loc='lower right')
+      plt.title('Training and Validation Accuracy')
+
+      plt.subplot(1, 2, 2)
+      plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='.')
+      plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='.')
+      plt.legend(loc='upper right')
+      plt.title('Training and Validation Loss')
+      plt.savefig(MODEL_DIR + model_name + '/'+ model_name +'.png')
+    
+      plt.show()
+  except ValueError as e:
+    print(e)
 
 
 def predict(model): 
@@ -358,10 +382,6 @@ def predict(model):
           .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
       )
   
-    
-
-
-
 
 def evaluate_perfomance(model_name):
     
@@ -380,6 +400,7 @@ def evaluate_perfomance(model_name):
   
   p1 = Bar(model_name, [hits_g, hits_r, total_training_data])
   p1.run()
+
 
 def track_data():
   for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):

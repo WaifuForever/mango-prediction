@@ -100,5 +100,5 @@ class Bar:
 
         arts = self.plot_model_results(self.model_name, self.scores)
         MODEL_DIR = "./Models/"
-        plt.savefig(MODEL_DIR + self.model_name + '/'+ self.model_name +'.png')    
+        plt.savefig(MODEL_DIR + self.model_name + '/'+ self.model_name + '_result' +'.png')    
         plt.show()
