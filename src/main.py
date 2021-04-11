@@ -8,7 +8,7 @@ import PIL
 import json
 import sys 
 
-from Charts.bar import Bar
+from chart import Chart
 
 import tensorflow as tf
 import h5py
@@ -97,7 +97,7 @@ def load_model(model_name):
             print("Number of generations set to %d" % default_epochs)
             break
   
-        loaded_model = train_data(loaded_model, epochs)
+        loaded_model = train_data(loaded_model, model_name, epochs)
 
       elif option == 2:
         predict(loaded_model)
@@ -111,7 +111,7 @@ def load_model(model_name):
           im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '.png')        
           im.show()
         except:
-          show_data(model_name)
+          Chart().train_chart(model_name)
         
         try:       
           im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') 
@@ -163,8 +163,8 @@ def create_model(model_name):
      
 
     #model.save(MODEL_DIR + model_name + '/'+ model_name)
-
-    show_data(model_name)
+    Chart().train_chart(model_name)
+    
     predict(model)
     #evaluate_perfomance(model_name)
   
@@ -302,32 +302,6 @@ def train_data(model, model_name, epochs):
 
   return model
 
-
-def show_data(model_name):
-  try:
-    with open( MODEL_DIR + model_name + '/' + model_name + '_data.txt') as json_file:
-      data = json.load(json_file)
-      epochs = range(data['epochs_range'])
-
-      plt.figure(figsize=(8, 8))
-      plt.subplot(1, 2, 1)
-      plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='.')
-      plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='.')
-      plt.legend(loc='lower right')
-      plt.title('Training and Validation Accuracy')
-
-      plt.subplot(1, 2, 2)
-      plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='.')
-      plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='.')
-      plt.legend(loc='upper right')
-      plt.title('Training and Validation Loss')
-      plt.savefig(MODEL_DIR + model_name + '/'+ model_name +'.png')
-    
-      plt.show()
-  except ValueError as e:
-    print(e)
-
-
 def predict(model): 
   
   while True:        
@@ -346,6 +320,43 @@ def predict(model):
       else:
         print("Invalid option!!\n")
   
+  while True:        
+      print('\nDo you want to erase the current Data in Result folder?')     
+      print("Select a Option:")
+      print("1 - Yes ")
+      print("2 - No")
+      op = int(input())
+      if op == 1:
+       
+        for path in [RESULT_DIR + '/Good', RESULT_DIR + '/Rotten']:
+
+          onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+          image_count = len(list(onlyfiles))
+
+          for x in range (0, image_count):
+            
+            current_path = path + '/' + onlyfiles[x]
+            
+            
+            try:
+              if os.path.isfile(current_path) or os.path.islink(current_path):
+                  os.unlink(current_path)
+              elif os.path.isdir(current_path):
+                  shutil.rmtree(current_path)
+            except Exception as e:
+              print('Failed to delete %s. Reason: %s' % (current_path, e))
+
+        print('\nThe Current Data in Result folder has been deleted')  
+     
+  
+        break;
+      elif op == 2:
+        print('\nThe Current Data in Result folder has not been deleted')
+        break;
+      else:
+        print("Invalid option!!\n")
+
+  
   class_names = [x[1]for x in os.walk(RESULT_DIR)][0]
   print(class_names)
 
@@ -359,8 +370,7 @@ def predict(model):
     for x in range (0, image_count):
       
       current_path = path + '/' + onlyfiles[x]
-      image = PIL.Image.open(current_path)
-      
+     
       img = keras.preprocessing.image.load_img(
           current_path, target_size=(height, width)
       )
@@ -370,7 +380,8 @@ def predict(model):
       predictions = model.predict(img_array)
       score = tf.nn.softmax(predictions[0])
 
-      if(np.argmax(score) == 0):     
+      if(np.argmax(score) == 0):             
+
         copyfile(current_path, RESULT_DIR + '/Good/' + onlyfiles[x])
         
       else:
@@ -385,7 +396,6 @@ def predict(model):
 
 def evaluate_perfomance(model_name):
     
-  os.system("python ./Charts/bar.py")
   hits_g = 0
   hits_r = 0
 
@@ -398,8 +408,11 @@ def evaluate_perfomance(model_name):
     if filename[1].startswith('R'):
       hits_r+=1 
   
-  p1 = Bar(model_name, [hits_g, hits_r, total_training_data])
-  p1.run()
+
+  p1 = Chart()
+  
+  p1.hits_chart(model_name, [hits_g, hits_r, total_training_data])
+
 
 
 def track_data():
