@@ -82,7 +82,7 @@ def load_model(model_name):
       print("1 - Retrain model")
       print("2 - Predict images")
       print("3 - Show Data")
-      print("4 - End Program")
+      print("4 - Main Menu.")
 
       option = int(input())
 
@@ -114,7 +114,7 @@ def load_model(model_name):
         
       
       elif option == 4:
-        print("End Program.")
+        
         break
           
       else:
@@ -302,71 +302,83 @@ def show_data(history, epochs, model_name):
  
   plt.show()
 
-def predict(model):  
 
+
+def predict(model): 
+  
   while True:        
-      print('Which Data should be analyzed?')     
+      print('\nWhich Data should be analyzed?')     
       print("Select a Option:")
       print("1 - From Training Folder ")
       print("2 - From Prediction Folder")
       op = int(input())
       if op == 1:
-        DIR = pathlib.Path(TRAINING_DIR)
+        
+        DIR = [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten']
         break;
       elif op == 2:
-        DIR = pathlib.Path(PREDICTION_DIR)
+        DIR = [PREDICTION_DIR]
         break;
       else:
         print("Invalid option!!\n")
- 
-  onlyfiles = [f for f in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, f))]
-  image_count = len(list(onlyfiles))
+  
+  class_names = [x[1]for x in os.walk(RESULT_DIR)][0]
+  print(class_names)
 
-  for x in range (0, image_count):
-    
-    current_path = DIR + '/' + onlyfiles[x]
-    image = PIL.Image.open(current_path)
-    
-    img = keras.preprocessing.image.load_img(
-        current_path, target_size=(height, width)
-    )
-    img_array = keras.preprocessing.image.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0) # Create a batch
 
-    predictions = model.predict(img_array)
-    score = tf.nn.softmax(predictions[0])
-    if(np.argmax(score) == 0):     
-      copyfile(current_path, RESULT_DIR + '/Good/' + onlyfiles[x])
+
+  for path in DIR:
+
+    onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    image_count = len(list(onlyfiles))
+
+    for x in range (0, image_count):
       
-    else:
-      copyfile(current_path, RESULT_DIR + '/Rotten/' + onlyfiles[x])
-    
-    print(class_names)
-    print(np.argmax(score))
-    print(
-        "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
-        .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
-    )
+      current_path = path + '/' + onlyfiles[x]
+      image = PIL.Image.open(current_path)
+      
+      img = keras.preprocessing.image.load_img(
+          current_path, target_size=(height, width)
+      )
+      img_array = keras.preprocessing.image.img_to_array(img)
+      img_array = tf.expand_dims(img_array, 0) # Create a batch
+
+      predictions = model.predict(img_array)
+      score = tf.nn.softmax(predictions[0])
+
+      if(np.argmax(score) == 0):     
+        copyfile(current_path, RESULT_DIR + '/Good/' + onlyfiles[x])
+        
+      else:
+        copyfile(current_path, RESULT_DIR + '/Rotten/' + onlyfiles[x])
+      
+     
+      print(
+          "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
+          .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
+      )
   
     
+
+
+
 
 def evaluate_perfomance(model_name):
-  
-  
+    
   os.system("python ./Charts/bar.py")
   hits_g = 0
   hits_r = 0
 
-  for count, filename in enumerate(os.listdir(RESULT_DIR + '/Good/')):
-    if filename.startswith('G'):
+  for filename in enumerate(os.listdir(RESULT_DIR + '/Good/')):
+    if filename[1].startswith('G'):
       hits_g+=1 
 
 
   for filename in enumerate(os.listdir(RESULT_DIR + '/Rotten/')):    
-    if filename.startswith('R'):
+    if filename[1].startswith('R'):
       hits_r+=1 
   
-  p1 = Bar(model_name, [hits_g, hits_r], total_training_data)
+  p1 = Bar(model_name, [hits_g, hits_r, total_training_data])
   p1.run()
 
 def track_data():
@@ -404,7 +416,7 @@ print(tf.__version__)
 
 while True:
 
-  print("TENSORFLOW IMAGE CLASSIFIER")
+  print("\nTENSORFLOW IMAGE CLASSIFIER")
   print("Select a Option:")
   print("1 - Create a new model")
   print("2 - Select a existing model")

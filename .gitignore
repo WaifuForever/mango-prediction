@@ -6,6 +6,8 @@ Data/Result/Good/*
 Data/Result/Rotten/*
 .vscode
 
+src/Charts/__pycache__
+
 
 !Data/Training/Good/mL01_001F.jpg 
 !Data/Training/Rotten/mL01_003F.jpg  
