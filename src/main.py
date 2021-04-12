@@ -35,7 +35,7 @@ MODEL_DIR = "./Models/"
 
 
 
-default_epochs = 3
+default_epochs = 1
 width = 686
 height = 656
 batch_size = 32
@@ -105,19 +105,7 @@ def load_model(model_name):
       elif option == 3:
         loaded_model.summary()        
        
-        
-        # open method used to open different extension image file
-        try:
-          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png')        
-          im.show()
-        except:
-          Chart().training_chart(model_name)
-        
-        try:       
-          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') 
-          im.show() 
-        except:
-          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+        Chart().display_charts(model_name)
       
       elif option == 4:
         

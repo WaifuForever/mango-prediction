@@ -10,6 +10,32 @@ class Chart:
     MODEL_DIR = "./Models/"
     def __init__(self):
        pass
+
+    def display_charts(self, model_name):
+        # open method used to open different extension image file
+        try:
+          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png') as im:      
+            im.show()
+        except:
+          self.training_chart(model_name)
+
+        try:
+          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png') as im:      
+            im.show()
+        except:
+          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+
+        try:
+            with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png') as im:      
+                im.show()
+        except:
+           print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+        
+        try:       
+          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') as im:
+            im.show() 
+        except:
+          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
         
     def training_chart(self, model_name):
         try:
@@ -41,11 +67,16 @@ class Chart:
 
         plt.style.use("fivethirtyeight")
 
-        x=["Good", "Rotten", "Total"]      
+        x=["Good", "Rotten", "Average"]      
         width=0.25
 
         x_indexes = np.arange(len(x))
-        y_indexes = [scores[0] * 100/scores[2], scores[1] * 100/scores[2]]
+        
+        y_indexes = [
+            scores[0] * 100/scores[2],
+            scores[1] * 100/scores[2],
+            (scores[0] * 100/scores[2] + scores[1] * 100/scores[2])/2
+        ]
 
         plt.bar(x_indexes, y_indexes, width=width)
                 
