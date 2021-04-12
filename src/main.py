@@ -100,7 +100,7 @@ def load_model(model_name):
         loaded_model = train_data(loaded_model, model_name, epochs)
 
       elif option == 2:
-        predict(loaded_model)
+        predict(loaded_model, model_name)
         evaluate_perfomance(model_name)
       elif option == 3:
         loaded_model.summary()        
@@ -108,10 +108,10 @@ def load_model(model_name):
         
         # open method used to open different extension image file
         try:
-          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '.png')        
+          im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png')        
           im.show()
         except:
-          Chart().train_chart(model_name)
+          Chart().training_chart(model_name)
         
         try:       
           im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') 
@@ -163,9 +163,9 @@ def create_model(model_name):
      
 
     #model.save(MODEL_DIR + model_name + '/'+ model_name)
-    Chart().train_chart(model_name)
+    Chart().training_chart(model_name)
     
-    predict(model)
+    predict(model, model_name)
     #evaluate_perfomance(model_name)
   
   
@@ -302,7 +302,8 @@ def train_data(model, model_name, epochs):
 
   return model
 
-def predict(model): 
+
+def predict(model, model_name): 
   
   while True:        
       print('\nWhich Data should be analyzed?')     
@@ -358,10 +359,14 @@ def predict(model):
 
   
   class_names = [x[1]for x in os.walk(RESULT_DIR)][0]
-  print(class_names)
+  print(class_names )
 
-
-
+  scores = {
+  "Good": [],
+  "Rotten": [],
+  "Average": []
+  }
+  
   for path in DIR:
 
     onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
@@ -380,39 +385,40 @@ def predict(model):
       predictions = model.predict(img_array)
       score = tf.nn.softmax(predictions[0])
 
-      if(np.argmax(score) == 0):             
-
+      if(np.argmax(score) == 0):           
         copyfile(current_path, RESULT_DIR + '/Good/' + onlyfiles[x])
-        
+        scores["Good"].append(np.max(score))
       else:
         copyfile(current_path, RESULT_DIR + '/Rotten/' + onlyfiles[x])
+        scores["Rotten"].append(np.max(score))
+
+      scores["Average"].append(np.max(score))
       
-     
       print(
           "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
           .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
       )
-  
+      
+  Chart().guessing_chart(model_name, scores)
+        
 
 def evaluate_perfomance(model_name):
     
   hits_g = 0
   hits_r = 0
-
+  total_data = 0
   for filename in enumerate(os.listdir(RESULT_DIR + '/Good/')):
+    total_data += 1
     if filename[1].startswith('G'):
       hits_g+=1 
 
 
-  for filename in enumerate(os.listdir(RESULT_DIR + '/Rotten/')):    
+  for filename in enumerate(os.listdir(RESULT_DIR + '/Rotten/')): 
+    total_data += 1   
     if filename[1].startswith('R'):
-      hits_r+=1 
+      hits_r+=1   
   
-
-  p1 = Chart()
-  
-  p1.hits_chart(model_name, [hits_g, hits_r, total_training_data])
-
+  Chart().precision_chart(model_name, [hits_g, hits_r, total_data])
 
 
 def track_data():
@@ -440,9 +446,9 @@ def track_data():
 def use_GPU():
   print(device_lib.list_local_devices())
 
-  #physical_devices = tf.config.experimental.list_physical_devices('GPU')
+  physical_devices = tf.config.experimental.list_physical_devices('GPU')
   print("Num GPUs Available: ", tf.config.experimental.list_physical_devices('GPU'))
-  #tf.config.experimental.set_memory_growth(physical_devices[0], True)
+  tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 print(tf.__version__)
