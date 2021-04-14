@@ -40,6 +40,13 @@ class Chart:
         except Exception as e:
             print(e)
             print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
+        
+        try:
+            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_precision.png')      
+            im.show()
+        except Exception as e:
+            print(e)
+            print("The file %s could not be found\n" % (model_name + '_precision' + '.png'))
              
         
     def training_chart(self, model_name):
