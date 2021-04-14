@@ -89,14 +89,14 @@ def load_model(model_name):
       if option == 1:
         while True:
           try:
-            epochs = int("Enter the number of generations: ")
+            epochs = int(input("Enter the number of generations: "))
             break
             
           except ValueError:
             epochs = default_epochs
             print("Number of generations set to %d" % default_epochs)
             break
-  
+ 
         loaded_model = train_data(loaded_model, model_name, epochs)
 
       elif option == 2:
@@ -136,8 +136,9 @@ def create_model(model_name):
   if model_name != 'exit':    
     
     while True:
+
       try:
-        epochs = int("Enter the number of generations: ")
+        epochs = int(input("Enter the number of generations: "))
         break
         
       except ValueError:

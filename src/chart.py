@@ -14,25 +14,25 @@ class Chart:
     def display_charts(self, model_name):
         # open method used to open different extension image file
         try:
-          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png') as im:      
+            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png')    
             im.show()
         except:
           self.training_chart(model_name)
 
         try:
-          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png') as im:      
+            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')    
             im.show()
         except:
-          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+          print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
 
         try:
-            with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png') as im:      
-                im.show()
+            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')     
+            im.show()
         except:
-           print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+           print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
         
         try:       
-          with PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png') as im:
+            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png')
             im.show() 
         except:
           print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
