@@ -35,7 +35,7 @@ MODEL_DIR = "./Models/"
 
 
 
-default_epochs = 1
+default_epochs = 3
 width = 686
 height = 656
 batch_size = 32
@@ -53,6 +53,9 @@ def load_model(model_name):
     loaded_model.load_weights(MODEL_DIR + model_name + '/' + model_name + '.h5')
     
     print("Loaded model from disk")
+  elif model_name == 'exit':
+    print("Back to main menu")
+    pass
 
   else:    
     while True:
@@ -126,15 +129,14 @@ def load_model(model_name):
           
 
 def create_model(model_name):
-  if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True or model_name == 'exit':
+  if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True:
     while True:
       print("This name is already in use")
       model_name = input("Enter model name: ")
       if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False or model_name == 'exit':
         break
   
-  if model_name != 'exit':    
-    
+  if model_name != 'exit': 
     while True:
 
       try:
@@ -145,17 +147,17 @@ def create_model(model_name):
         epochs = default_epochs
         print("Number of generations set to %d" % default_epochs)
         break
-    
    
-    model = train_data(None, model_name, epochs)
-  
-     
+    model = train_data(None, model_name, epochs)     
 
     #model.save(MODEL_DIR + model_name + '/'+ model_name)
     Chart().training_chart(model_name)
     
     predict(model, model_name)
     #evaluate_perfomance(model_name)
+  else:
+    print("Back to main menu")
+    pass
   
   
 def resize_images():
