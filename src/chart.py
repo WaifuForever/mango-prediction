@@ -1,8 +1,10 @@
+import os
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
+import PIL
 import json
 
 class Chart:
@@ -12,30 +14,33 @@ class Chart:
        pass
 
     def display_charts(self, model_name):
+
+      
+       
+      
         # open method used to open different extension image file
         try:
-            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_training.png')    
+            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training.png')    
             im.show()
-        except:
-          self.training_chart(model_name)
+        except Exception as e:
+            print(e)
+            self.training_chart(model_name)
 
         try:
-            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')    
+            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')      
             im.show()
-        except:
-          print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
+            
+        except Exception as e:
+            print(e)
+            print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
 
         try:
-            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')     
+            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')      
             im.show()
-        except:
-           print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
-        
-        try:       
-            im = PIL.Image.open(MODEL_DIR + model_name + '/'+ model_name + '_result' + '.png')
-            im.show() 
-        except:
-          print("The file %s could not be found\n" % (model_name + '_result' + '.png'))
+        except Exception as e:
+            print(e)
+            print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
+             
         
     def training_chart(self, model_name):
         try:
