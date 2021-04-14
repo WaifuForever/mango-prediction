@@ -283,7 +283,7 @@ def train_data(model, model_name, epochs):
       'val_acc': val_acc,
       'loss': loss,
       'val_loss': val_loss,
-      'epochs_range' : default_epochs
+      'epochs_range' : epochs
   })
 
   with open(MODEL_DIR + model_name + '/' + model_name + '_data.txt', 'w') as outfile:
