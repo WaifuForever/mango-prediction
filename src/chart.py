@@ -13,11 +13,7 @@ class Chart:
     def __init__(self):
        pass
 
-    def display_charts(self, model_name):
-
-      
-       
-      
+    def display_charts(self, model_name):      
         # open method used to open different extension image file
         try:
             im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training.png')    
@@ -138,7 +134,7 @@ class Chart:
         plt.bar(dictlist, [average_g, average_r, (average_g + average_r)/2], width=width,)
        
         plt.xticks(ticks=x_indexes, labels=dictlist)
-
+        plt.title('Guessing')
         plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2' +'.png')    
         plt.show()
 
