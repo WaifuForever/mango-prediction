@@ -70,7 +70,7 @@ def load_model(model_name):
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
         loaded_model.load_weights(MODEL_DIR + model_name + '/' + model_name + '.h5')
-        print("Loaded model from disk")
+        print("Loaded model from disk\n")
 
         
         loaded_model.compile(optimizer='adam',
@@ -106,9 +106,29 @@ def load_model(model_name):
         predict(loaded_model, model_name)
         evaluate_perfomance(model_name)
       elif option == 3:
-        loaded_model.summary()        
+        while True:        
+          print('\nChoose the Data to be shown')     
+          print("Select a Option:")
+          print("1 - Summary")
+          print("2 - Guessing_1")
+          print("3 - Guessing_2")
+          print("4 - Training_1")
+          print("5 - Training_2")
+          print("6 - Precision")
+          print("7 - Return to previous menu")
+          op = int(input())
+          
+          if op == 1:
+            loaded_model.summary() 
+          
+          elif op == 7:
+            print("\n")
+            break;
+          else:
+            Chart().display_charts(model_name, op)
+               
        
-        Chart().display_charts(model_name)
+        
       
       elif option == 4:
         
@@ -220,21 +240,26 @@ def train_data(model, model_name, epochs):
       layers.experimental.preprocessing.RandomZoom(0.1),
     ]
   )
+
+
+
   if model == None:
     num_classes = 2
     #THIS CURRENT MODEL IS NOT WORKING!!
     model = Sequential([
       layers.experimental.preprocessing.Rescaling(1./255, input_shape=(height, width, 3)),
       data_augmentation,
-      layers.Conv2D(16, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(32, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(64, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
+      layers.Conv2D(16, (3,3), activation='relu'),
+      layers.MaxPooling2D(2,2),
+      layers.Conv2D(32, (3,3), activation='relu'),
+      layers.MaxPooling2D(2,2),
+      layers.Conv2D(64, (3,3), activation='relu'),
+      layers.MaxPooling2D(2,2),
+      layers.Dropout(0.2),
       layers.Flatten(),
-      layers.Dense(128, activation='relu'),
-      layers.Dense(num_classes)
+      layers.Dense(512, activation='relu'),
+      layers.Dense(num_classes, activation='softmax')
+     
     ])
 
 

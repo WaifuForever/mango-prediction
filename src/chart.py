@@ -13,36 +13,62 @@ class Chart:
     def __init__(self):
        pass
 
-    def display_charts(self, model_name):      
+    def display_charts(self, model_name, op):      
         # open method used to open different extension image file
-        try:
-            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training.png')    
-            im.show()
-        except Exception as e:
-            print(e)
-            self.training_chart(model_name)
+        if op == 2:
+            try:
+                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')      
+                im.show()
 
-        try:
-            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')      
-            im.show()
+            except Exception as e:
+                print(e)
+                print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
             
-        except Exception as e:
-            print(e)
-            print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
 
-        try:
-            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')      
-            im.show()
-        except Exception as e:
-            print(e)
-            print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
+        elif op == 3:
+            try:
+                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')      
+                im.show()
+            except Exception as e:
+                print(e)
+                print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
         
-        try:
-            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_precision.png')      
-            im.show()
-        except Exception as e:
-            print(e)
-            print("The file %s could not be found\n" % (model_name + '_precision' + '.png'))
+            
+        elif op == 4:
+            try:
+                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training_1.png')    
+                im.show()
+            except Exception as e:
+                print(e)
+                self.training_chart(model_name)
+            
+        elif op == 5:
+            try:
+                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training_2.png')    
+                im.show()
+            except Exception as e:
+                print(e)
+                self.training_chart(model_name)           
+            
+
+        elif op == 6:       
+            try:
+                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_precision.png')      
+                im.show()
+            except Exception as e:
+                print(e)
+                print("The file %s could not be found\n" % (model_name + '_precision' + '.png'))
+            
+        
+        else:
+            print("Invalid option!!\n")
+
+       
+       
+
+        
+
+       
              
         
     def training_chart(self, model_name):
@@ -52,20 +78,21 @@ class Chart:
                 epochs = range(data['epochs_range'])
 
                 plt.style.use("fivethirtyeight")
-                plt.figure(figsize=(8, 8))
-                plt.subplot(1, 2, 1)
+                #plt.figure(figsize=(8, 8))
+                #plt.subplot(1, 2, 1)
                 plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='o', linewidth=2.0)
                 plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='o', linewidth=2.0)
                 plt.legend(loc='lower right')
                 plt.title('Accuracy')
+                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_training_1.png')
+                plt.show()
                 
-
-                plt.subplot(1, 2, 2)
+                #plt.subplot(1, 2, 2)
                 plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='o', linewidth=2.0)
                 plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='o', linewidth=2.0)
                 plt.legend(loc='upper right')
                 plt.title('Loss')
-                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_training.png')
+                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_training_2.png')
                 
                 plt.show()
         except ValueError as e:
