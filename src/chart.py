@@ -62,15 +62,7 @@ class Chart:
         
         else:
             print("Invalid option!!\n")
-
-       
-       
-
-        
-
-       
-             
-        
+          
     def training_chart(self, model_name):
         try:
             with open( self.MODEL_DIR + model_name + '/' + model_name + '_data.txt') as json_file:

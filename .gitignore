@@ -1,6 +1,9 @@
 Data/Training/Good/*
 Data/Training/Rotten/*
+Data/Validation/Good/*
+Data/Validation/Rotten/*
 Data/Prediction/*
+Data/Augmented/*
 Models/*
 Data/Result/Good/*
 Data/Result/Rotten/*
@@ -8,11 +11,13 @@ Data/Result/Rotten/*
 
 src/__pycache__
 
+!Data/Augmented
+!Data/Validation/Good/mL01_001F.jpg 
+!Data/Validation/Rotten/mL01_003F.jpg  
 
 !Data/Training/Good/mL01_001F.jpg 
 !Data/Training/Rotten/mL01_003F.jpg  
-!Models/model_1.h5
-!Models/model_1.json
+
 !Data/Prediction/image (1).jpeg 
 !Data/Result/Good/image (1).jpeg 
 !Data/Result/Rotten/image (4).jpeg 
