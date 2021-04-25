@@ -4,11 +4,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 from sklearn.metrics import confusion_matrix
 from shutil import copyfile
-from data import Data
 from chart import Chart
+
 import numpy as np
 import json
 import pathlib
@@ -16,7 +15,7 @@ import os
 import tensorflow as tf
 import h5py
 import msvcrt
-
+import csv
 
 class Model:
 
@@ -149,6 +148,7 @@ class Model:
             target_size=(self.width, self.height),
             batch_size=self.batch_size, 
             shuffle=True,       
+            color_mode="rgb",
             subset='training',        
             class_mode='binary',
             save_format='.jpeg',
@@ -160,6 +160,7 @@ class Model:
             self.VALIDATION_DIR,
             target_size=(self.width, self.height),
             shuffle=True, 
+            color_mode="rgb",
             batch_size=self.batch_size//2,            
             subset='validation',
             class_mode='binary'
@@ -194,10 +195,10 @@ class Model:
         
         history = model.fit(
             train_generator, 
-            steps_per_epoch=419 // self.batch_size,       
+            steps_per_epoch= len(train_generator.filenames) // self.batch_size,       
             epochs=epochs,
             validation_data=validation_generator,
-            validation_steps=281 // (self.batch_size // 2),
+            validation_steps= len(validation_generator.filenames) // (self.batch_size // 2),
             callbacks=callbacks
         )
 
@@ -309,15 +310,12 @@ class Model:
             image_count = len(list(onlyfiles))
 
             for x in range (0, image_count):
-
-                with open('predict_result.csv', mode='w') as data_file:
-                    data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-                    data_writer.writerow([onlyfiles[x], predict[x],np.max(score)])
-                     
-
-                score = tf.nn.sigmoid(predict)
+                
+               
+                score = tf.nn.sigmoid(predict)     
+                
                 current_path = path + '/' + onlyfiles[x]
+               
                 if predict[x] < 0.5:
 
                     copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
@@ -330,6 +328,10 @@ class Model:
                 x += 1
 
 
+                with open(self.MODEL_DIR + model_name + 'predict_result.csv', mode='w') as data_file:
+                    data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                    data_writer.writerow([predict,np.max(score)])
                   
 
         y_true = np.array([0] * 159 + [1] * 159)

@@ -110,11 +110,9 @@ def main():
           if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False or model_name == 'exit':
               break
         
-      if model_name == 'exit':
-        pass
-      else:
+      if model_name != 'exit':
         current_model = model.create_model()
-
+      
 
     elif option == 2:      
       #load_model
@@ -132,9 +130,6 @@ def main():
       
       if model_name != 'exit':        
         current_model = model.load_model(model_name)        
-
-      else:
-        pass 
             
 
     elif option == 3:
@@ -144,7 +139,7 @@ def main():
     else:
       print("Invalid option!!\n")
 
-    while True:
+    while model_name != 'exit':
 
       print("Select a Option:")
       print("1 - Train model")
