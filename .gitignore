@@ -12,10 +12,10 @@ Data/Result/Rotten/*
 src/__pycache__
 
 !Data/Augmented
-!Data/Validation/Good/mL01_001F.jpg 
+!Data/Validation/Good/mL01_002F.jpg 
 !Data/Validation/Rotten/mL01_003F.jpg  
 
-!Data/Training/Good/mL01_001F.jpg 
+!Data/Training/Good/mL01_002F.jpg 
 !Data/Training/Rotten/mL01_003F.jpg  
 
 !Data/Prediction/image (1).jpeg 
