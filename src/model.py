@@ -289,7 +289,7 @@ class Model:
         predict_datagen = ImageDataGenerator(rescale=1./255)
 
         predict_generator = predict_datagen.flow_from_directory(
-                DIR,
+                DIR[0],
                 target_size=(self.width, self.height),
                 color_mode="rgb",
                 shuffle = False,
@@ -301,36 +301,37 @@ class Model:
 
         predictedClassIndices = predict > 0.5
 
-        
+    
+       
+  
+        for path in DIR[1]:            
+            onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+            image_count = len(list(onlyfiles))
 
-        files = folders = 0
+            for x in range (0, image_count):
 
-        files = []
-        for temp in os.walk(DIR):
-           
-            files.append((temp[0],temp[2]))
-          
-            
-        print(files)
+                with open('predict_result.csv', mode='w') as data_file:
+                    data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                    data_writer.writerow([onlyfiles[x], predict[x],np.max(score)])
+                     
+
+                score = tf.nn.sigmoid(predict)
+                current_path = path + '/' + onlyfiles[x]
+                if predict[x] < 0.5:
+
+                    copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
+                    scores["Good"].append(np.max(score))
+                    print(onlyfiles[x], ":", predict[x], " - ", np.max(score) )
+                else:
+                    copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
+                    scores["Rotten"].append(np.max(score))
+                    print(onlyfiles[x], ":", predict[x], " - ", np.max(score))
+                x += 1
 
 
-        x = 0
-        for filename in os.walk(DIR):
+                  
 
-            print(filename)
-            score = tf.nn.sigmoid(predict)
-            current_path = DIR + '/' + filename
-            if predict[x] < 0.5:
-
-                copyfile(current_path, self.RESULT_DIR + '/Good/' + filename)
-                scores["Good"].append(np.max(score))
-                print(filename, ":", predict[x], " - ", np.max(score) )
-            else:
-                copyfile(current_path, self.RESULT_DIR + '/Rotten/' + filename)
-                scores["Rotten"].append(np.max(score))
-                print(filename, ":", predict[x], " - ", np.max(score))
-            x += 1
-                        
         y_true = np.array([0] * 159 + [1] * 159)
         y_pred =  predict > 0.5
 

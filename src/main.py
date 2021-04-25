@@ -175,7 +175,7 @@ while True:
       while True:
         
         print("Select a Option:")
-        print("1 - Retrain model")
+        print("1 - Train model")
         print("2 - Predict images")
         print("3 - Show Data")
         print("4 - Main Menu.")
@@ -204,15 +204,16 @@ while True:
             print("2 - From Prediction Folder")
             op = int(input())
             if op == 1:                
-                DIR = TRAINING_DIR
+                DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
+                
                 break;
             elif op == 2:
-                DIR = PREDICTION_DIR
+                DIR = (RESULT_DIR, [RESULT_DIR + '/Good', RESULT_DIR + '/Rotten'])
                 break;
             else:
                 print("Invalid option!!\n")
 
-          model.predict(m1, model_name, DIR)           
+          model.predict(m1, model_name, DIR) 
           
           model.evaluate_perfomance(model_name)
         elif option == 3:
