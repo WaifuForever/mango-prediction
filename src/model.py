@@ -16,6 +16,8 @@ import tensorflow as tf
 import h5py
 import msvcrt
 
+
+
 class Model:
 
     PREDICTION_DIR = "./Data/Prediction"
@@ -40,14 +42,15 @@ class Model:
                 layers.MaxPooling2D(2,2),
                 layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
                 layers.MaxPooling2D(2,2),
+
                 layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
                 layers.MaxPooling2D(2,2),
                 layers.Conv2D(128, (5, 5), activation="relu"),
                 layers.MaxPooling2D(2,2),
+
                 layers.Conv2D(256, (5, 5), activation="relu"),
                 layers.MaxPooling2D(2,2),
-                layers.Dropout(0.2),
-                
+                layers.Dropout(0.2),                
                 layers.Conv2D(512, (5, 5), activation="relu"),      
                 layers.MaxPooling2D(2,2),
 
@@ -57,7 +60,7 @@ class Model:
                 
                 layers.Dense(1, activation='sigmoid'),
                 
-            ]), 
+            ]) 
         elif op == 2:
             #VGG16
             model = Sequential()
@@ -102,19 +105,19 @@ class Model:
             model.add(layers.Dropout(0.5))
             model.add(layers.Dense(4096, activation='relu'))
             model.add(layers.Dropout(0.5))
-            model.add(layers.Dense(2, activation='softmax'))
+            model.add(layers.Dense(1, activation='sigmoid'))
             return model
 
     def create_model(self):
     
-        model = self._get_RNN(2)
+        model = self._get_RNN(1)
 
         opt = tf.keras.optimizers.RMSprop()
 
         #sparse_categorical_crossentropy
         #binary_crossentropy
-        model.compile(optimizer='adam',
-                        loss='sparse_categorical_crossentropy',
+        model.compile(optimizer=opt,
+                        loss='binary_crossentropy',
                         metrics=['accuracy'])
 
         model.summary()
@@ -173,13 +176,29 @@ class Model:
             class_names.append(key)
 
         print(class_names)
+
+        reduce_lr=tf.keras.callbacks.ReduceLROnPlateau(
+            monitor="val_loss",
+            factor=0.5,
+            patience=2,
+            verbose=1
+        )
+        e_stop=tf.keras.callbacks.EarlyStopping(
+            monitor="val_loss",
+            patience=5, 
+            verbose=0,
+            restore_best_weights=True
+        )
+        callbacks=[reduce_lr, e_stop]
+
         
         history = model.fit(
             train_generator, 
             steps_per_epoch=419 // self.batch_size,       
             epochs=epochs,
             validation_data=validation_generator,
-            validation_steps=281 // (self.batch_size // 2)
+            validation_steps=281 // (self.batch_size // 2),
+            callbacks=callbacks
         )
 
         
@@ -279,19 +298,16 @@ class Model:
                     current_path, target_size=(self.height, self.width)
                 )
                 img_array = keras.preprocessing.image.img_to_array(img)
-                img_array = tf.expand_dims(img_array, 0) # Create a batch
+
+                img_array = img_array.reshape(1, self.height, self.width, 3)
+                img_array = img_array.astype('float64')
+                #img_array = tf.expand_dims(img_array, 0) # Create a batch
 
                 predictions = model.predict(img_array)
                 score = tf.nn.softmax(predictions[0])
 
                
-               
-           
-                predictions = model.predict(img_array)
-                score = tf.nn.softmax(predictions[0])
-
-                print(predictions)
-                print(score)
+                print("{pred} - {score} - {result}".format(pred=predictions, score=score.shape, result=np.argmax(score)))
 
                 if(np.argmax(score) == 0):           
                     copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
