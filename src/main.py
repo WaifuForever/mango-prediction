@@ -193,7 +193,7 @@ while True:
                   print("Number of generations set to %d" % default_epochs)
                   break
     
-            m1 = train_data(m1, model_name, epochs)
+            m1 = model.train_data(m1, model_name, epochs)
 
         elif option == 2:
         
@@ -203,12 +203,11 @@ while True:
             print("1 - From Training Folder ")
             print("2 - From Prediction Folder")
             op = int(input())
-            if op == 1:
-                
-                DIR = [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten']
+            if op == 1:                
+                DIR = TRAINING_DIR
                 break;
             elif op == 2:
-                DIR = [PREDICTION_DIR]
+                DIR = PREDICTION_DIR
                 break;
             else:
                 print("Invalid option!!\n")

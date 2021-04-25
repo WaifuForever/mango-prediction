@@ -5,6 +5,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+from sklearn.metrics import confusion_matrix
 from shutil import copyfile
 from data import Data
 from chart import Chart
@@ -15,7 +16,6 @@ import os
 import tensorflow as tf
 import h5py
 import msvcrt
-
 
 
 class Model:
@@ -284,6 +284,64 @@ class Model:
         "Average": []
         }
         
+        
+
+        predict_datagen = ImageDataGenerator(rescale=1./255)
+
+        predict_generator = predict_datagen.flow_from_directory(
+                DIR,
+                target_size=(self.width, self.height),
+                color_mode="rgb",
+                shuffle = False,
+                class_mode=None,
+                batch_size=1)
+
+        len_files = len(predict_generator.filenames)
+        predict = model.predict(predict_generator,steps = len_files)
+
+        predictedClassIndices = predict > 0.5
+
+        
+
+        files = folders = 0
+
+        files = []
+        for temp in os.walk(DIR):
+           
+            files.append((temp[0],temp[2]))
+          
+            
+        print(files)
+
+
+        x = 0
+        for filename in os.walk(DIR):
+
+            print(filename)
+            score = tf.nn.sigmoid(predict)
+            current_path = DIR + '/' + filename
+            if predict[x] < 0.5:
+
+                copyfile(current_path, self.RESULT_DIR + '/Good/' + filename)
+                scores["Good"].append(np.max(score))
+                print(filename, ":", predict[x], " - ", np.max(score) )
+            else:
+                copyfile(current_path, self.RESULT_DIR + '/Rotten/' + filename)
+                scores["Rotten"].append(np.max(score))
+                print(filename, ":", predict[x], " - ", np.max(score))
+            x += 1
+                        
+        y_true = np.array([0] * 159 + [1] * 159)
+        y_pred =  predict > 0.5
+
+        print(confusion_matrix(y_true, y_pred))
+
+        x_true = np.array([0] * 274 + [1] * 274)
+        x_pred =  predict < 0.5
+
+        print(confusion_matrix(x_true, x_pred))
+           
+        '''
         for path in DIR:
 
             onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
@@ -322,8 +380,8 @@ class Model:
                     "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
                     .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
                 )
-                
-        Chart().guessing_chart(model_name, scores)
+            '''
+        #Chart().guessing_chart(model_name, scores)
 
     def load_model(self, model_name):
         if os.path.isfile(self.MODEL_DIR + model_name + '/' + model_name +  '.h5') is True:
