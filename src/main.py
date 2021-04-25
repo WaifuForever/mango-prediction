@@ -34,7 +34,7 @@ MODEL_DIR = "./Models/"
 width = 512
 height = 512
 
-  
+current_model = None
   
        
 
@@ -86,184 +86,142 @@ def use_GPU():
   print("Num GPUs Available: ", tf.config.experimental.list_physical_devices('GPU'))
   tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-print(tf.__version__)
-#use_GPU()
 
-while True:
+def main():    
+  model = Model()
+  while True:
+    print("\nTENSORFLOW IMAGE CLASSIFIER")
+    print("Select a Option:")
+    print("1 - Create a new model")
+    print("2 - Select a existing model")
+    print("3 - End Program")
+    
 
-  print("\nTENSORFLOW IMAGE CLASSIFIER")
-  print("Select a Option:")
-  print("1 - Create a new model")
-  print("2 - Select a existing model")
-  print("3 - Track training data")
-  print("4 - End Program")
+    option = int(input())
 
-  option = int(input())
+    if option == 1:
 
-  if option == 1:
+      model_name = input("Enter model name: ")
 
-    model_name = input("Enter model name: ")
+      if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True:
+        while True:
+          print("This name is already in use")
+          model_name = input("Enter model name: ")
+          if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False or model_name == 'exit':
+              break
+        
+      if model_name == 'exit':
+        pass
+      else:
+        current_model = model.create_model()
 
-    if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is True:
+
+    elif option == 2:      
+      #load_model
+      model_name = input("Enter model name: ")
       while True:
-        print("This name is already in use")
-        model_name = input("Enter model name: ")
-        if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False or model_name == 'exit':
-            break
-      
-    if model_name == 'exit':
-      pass
-    else:
-      model = Model()
-      m1 = model.create_model()
+        if model_name == 'exit':
+          break
+        
+        if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False:
+          print("File not found!!\n")
+          model_name = input("Enter model name: ")
 
-      while True:
-        try:
-            epochs = int(input("Enter the number of generations: "))
-            break
-            
-        except ValueError:
-            epochs = default_epochs
-            print("Number of generations set to %d" % default_epochs)
-            break
-      
-      
-
-      model.train_model(m1, model_name, epochs)
-
-      while True:        
-        print('\nWhich Data should be analyzed?')     
-        print("Select a Option:")
-        print("1 - From Training Folder ")
-        print("2 - From Prediction Folder")
-        op = int(input())
-        if op == 1:
-            
-            DIR = [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten']
-            break;
-        elif op == 2:
-            DIR = [PREDICTION_DIR]
-            break;
         else:
-            print("Invalid option!!\n")
+          break
+      
+      if model_name != 'exit':        
+        current_model = model.load_model(model_name)        
 
-      model.predict(m1, model_name, DIR)
-    
+      else:
+        pass 
+            
 
-  elif option == 2:
+    elif option == 3:
+      break;
+      
 
-    
-    model_name = input("Enter model name: ")
+    else:
+      print("Invalid option!!\n")
 
     while True:
 
-      if model_name == 'exit':
-        break
-      
-      if os.path.isfile(MODEL_DIR + model_name + '/' + model_name + '.h5') is False:
-        print("File not found!!\n")
-        model_name = input("Enter model name: ")
+      print("Select a Option:")
+      print("1 - Train model")
+      print("2 - Predict images")
+      print("3 - Show Data")
+      print("4 - Main Menu.")
 
-      else:
-        break;
-    
-  
+      option = int(input())
 
-    if model_name != 'exit':
-      model = Model()
-      m1 = model.load_model(model_name)
-      while True:
-        
-        print("Select a Option:")
-        print("1 - Train model")
-        print("2 - Predict images")
-        print("3 - Show Data")
-        print("4 - Main Menu.")
-
-        option = int(input())
-
-        if option == 1:
-            while True:
-              try:
-                  epochs = int(input("Enter the number of generations: "))
-                  break
-                  
-              except ValueError:
-                  epochs = default_epochs
-                  print("Number of generations set to %d" % default_epochs)
-                  break
-    
-            m1 = model.train_data(m1, model_name, epochs)
-
-        elif option == 2:
-        
-          while True:        
-            print('\nWhich Data should be analyzed?')     
-            print("Select a Option:")
-            print("1 - From Training Folder ")
-            print("2 - From Prediction Folder")
-            op = int(input())
-            if op == 1:                
-                DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
+      if option == 1:
+          while True:
+            try:
+                epochs = int(input("Enter the number of generations: "))
+                break
                 
-                break;
-            elif op == 2:
-                DIR = (RESULT_DIR, [RESULT_DIR + '/Good', RESULT_DIR + '/Rotten'])
+            except ValueError:
+                epochs = default_epochs
+                print("Number of generations set to %d" % default_epochs)
+                break
+
+          
+          current_model = model.train_model(current_model, model_name, epochs)
+
+      elif option == 2:
+      
+        while True:        
+          print('\nWhich Data should be analyzed?')     
+          print("Select a Option:")
+          print("1 - From Training Folder ")
+          print("2 - From Prediction Folder")
+          op = int(input())
+          if op == 1:                
+              DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
+              track_data()
+              break;
+          elif op == 2:
+              DIR = (RESULT_DIR, [RESULT_DIR + '/Good', RESULT_DIR + '/Rotten'])
+              break;
+          else:
+              print("Invalid option!!\n")
+
+        model.predict(current_model, model_name, DIR) 
+        
+        model.evaluate_perfomance(model_name)
+
+      elif option == 3:
+          while True:        
+            print('\nChoose the Data to be shown')     
+            print("Select a Option:")
+            print("1 - Summary")
+            print("2 - Guessing_1")
+            print("3 - Guessing_2")
+            print("4 - Training_1")
+            print("5 - Training_2")
+            print("6 - Precision")
+            print("7 - Return to previous menu")
+            op = int(input())
+          
+            if op == 1:
+                current_model.summary() 
+            
+            elif op == 7:
+                print("\n")
                 break;
             else:
-                print("Invalid option!!\n")
-
-          model.predict(m1, model_name, DIR) 
-          
-          model.evaluate_perfomance(model_name)
-        elif option == 3:
-            while True:        
-              print('\nChoose the Data to be shown')     
-              print("Select a Option:")
-              print("1 - Summary")
-              print("2 - Guessing_1")
-              print("3 - Guessing_2")
-              print("4 - Training_1")
-              print("5 - Training_2")
-              print("6 - Precision")
-              print("7 - Return to previous menu")
-              op = int(input())
+                Chart().display_charts(model_name, op)
+                    
+      elif option == 4:
             
-              if op == 1:
-                  loaded_model.summary() 
-              
-              elif op == 7:
-                  print("\n")
-                  break;
-              else:
-                  Chart().display_charts(model_name, op)
-                      
-        elif option == 4:
-              
-          break
-              
-        else:
-          print("Invalid option!!\n")
-        
-
-    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
-      loaded_model.save_weights(MODEL_DIR + model_name + '/'+ model_name + ".h5")
-    
-
-    if os.path.isfile(MODEL_DIR + model_name + '/'+ model_name + '.json') is False:
-      model_json = loaded_model.to_json()
-      with open(MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
-          json_file.write(model_json)
-              
+        break
+            
+      else:
+        print("Invalid option!!\n")
 
 
 
 
-  elif option == 3:
-    track_data()
-  elif option == 4:
-    break;
-    
-  else:
-    print("Invalid option!!\n")
-
+print(tf.__version__)
+#use_GPU()
+main()
