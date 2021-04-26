@@ -86,10 +86,10 @@ def use_GPU():
   print("Num GPUs Available: ", tf.config.experimental.list_physical_devices('GPU'))
   tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-
 def main():    
   model = Model()
   while True:
+
     print("\nTENSORFLOW IMAGE CLASSIFIER")
     print("Select a Option:")
     print("1 - Create a new model")
@@ -111,7 +111,7 @@ def main():
               break
         
       if model_name != 'exit':
-        current_model = model.create_model(4, 1)
+        current_model = model.create_model(4, 0)
       
 
     elif option == 2:      
@@ -208,7 +208,7 @@ def main():
                 Chart().display_charts(model_name, op)
                     
       elif option == 4:
-            
+        current_model = None
         break
             
       else:

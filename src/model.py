@@ -27,7 +27,7 @@ class Model:
     height, width = 512, 512
 
     #model.py
-    batch_size = 2
+    batch_size = 4
     default_epochs = 3
 
     def __init__(self):
@@ -52,10 +52,10 @@ class Model:
 
 
 
-    def _get_RNN(self, op):
+    def _get_CNN(self, op):
 
         return { 
-                #Jojo2+1-64
+            #Jojo2+1-64   
             0 : Sequential([     
                 
                 layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
@@ -79,8 +79,9 @@ class Model:
                 layers.Dense(1, activation='sigmoid'),
                 
                 ]),
-                #Jojo3-128
-            1 :  Sequential([     
+
+            #Jojo3-128
+            1 : Sequential([     
                 
                 layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
                 layers.MaxPooling2D(2,2),
@@ -99,7 +100,8 @@ class Model:
                 layers.Dense(1, activation='sigmoid'),
                 
                 ]),
-                #LeNet-5
+
+            #LeNet-5
             2 : Sequential([     
                
                 layers.Conv2D(32, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
@@ -116,7 +118,8 @@ class Model:
             
             
                 ]),
-                #AlexNet
+
+            #AlexNet
             3 : Sequential([     
                                                                 
                 #1st Convolutional Layer
@@ -170,8 +173,8 @@ class Model:
                
                 
                 ]),
-            4 : #VGG16
-                Sequential([
+            #VGG16
+            4 : Sequential([
                     layers.ZeroPadding2D((1,1),input_shape=(self.height, self.width, 3)),
                     layers.Convolution2D(64, 3, 3, activation='relu'),
                     layers.ZeroPadding2D((1,1)),
@@ -222,9 +225,9 @@ class Model:
         }.get(op, None) 
 
 
-    def create_model(self, rn, op):
+    def create_model(self, cn, op):
     
-        model = self._get_RNN(rn)
+        model = self._get_CNN(cn)
 
 
         #sparse_categorical_crossentropy
@@ -252,7 +255,7 @@ class Model:
         #Data().resize_images(self.width, self.height)
         
         gen = ImageDataGenerator(rotation_range=10, width_shift_range=0.1,
-            height_shift_range=0.1, zoom_range=0.1, rescale=1./255,
+            height_shift_range=0.1, rescale=1./255,
             channel_shift_range=10, horizontal_flip=True, fill_mode="nearest")
 
         test_datagen = ImageDataGenerator(rescale=1./255, validation_split=0.7)
@@ -298,13 +301,13 @@ class Model:
             patience=2,
             verbose=1
         )
-        e_stop=tf.keras.callbacks.EarlyStopping(
+        '''e_stop=tf.keras.callbacks.EarlyStopping(
             monitor="val_loss",
             patience=5, 
             verbose=0,
             restore_best_weights=True
-        )
-        callbacks=[reduce_lr, e_stop]
+        )'''
+        callbacks=[reduce_lr]
 
         
         history = model.fit(
@@ -312,7 +315,7 @@ class Model:
             steps_per_epoch= len(train_generator.filenames) // self.batch_size,       
             epochs=epochs,
             validation_data=validation_generator,
-            validation_steps= len(validation_generator.filenames) // (self.batch_size),
+            validation_steps= len(validation_generator.filenames) // (self.batch_size) // 2,
             callbacks=callbacks
         )
 
