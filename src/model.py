@@ -48,11 +48,129 @@ class Model:
             7 : None,
         }.get(op, None) 
       
+  
+
+
 
     def _get_RNN(self, op):
 
-        return {
-            0 :  #VGG16
+        return { 
+                #Jojo2+1-64
+            0 : Sequential([     
+                
+                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(64, (5, 5), activation="relu"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Conv2D(64, (5, 5), activation="relu"),
+                layers.MaxPooling2D(2,2),
+                layers.Dropout(0.2),                
+
+                layers.Flatten(),   
+                layers.Dense(512, activation="relu"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+                #Jojo3-128
+            1 :  Sequential([     
+                
+                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(128, (5, 5), activation="relu"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Flatten(),   
+                layers.Dense(128, activation="relu"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+                #LeNet-5
+            2 : Sequential([     
+               
+                layers.Conv2D(32, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D((2,2), strides=2),
+
+                layers.Conv2D(48, (5, 5), activation="relu", padding="valid"),
+                layers.MaxPooling2D((2,2), strides=2),
+                
+                layers.Flatten(),   
+                layers.Dense(256, activation="relu"),
+                layers.Dropout(0.2),
+                layers.Dense(84, activation="relu"),
+                layers.Dense(1, activation="sigmoid"),
+            
+            
+                ]),
+                #AlexNet
+            3 : Sequential([     
+                                                                
+                #1st Convolutional Layer
+                layers.Conv2D(filters=96, activation='relu', input_shape=(self.height, self.width, 3), kernel_size=(11,11), strides=(4,4), padding='same'),
+                layers.BatchNormalization(),               
+                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+
+
+                #2nd Convolutional Layer
+                layers.Conv2D(filters=256, activation='relu', kernel_size=(5, 5), strides=(1,1), padding='same'),
+                layers.BatchNormalization(),
+                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+
+                #3rd Convolutional Layer
+                layers.Conv2D(filters=384, activation='relu', kernel_size=(3,3), strides=(1,1), padding='same'),
+                layers.BatchNormalization(),
+                
+                #4th Convolutional Layer
+                layers.Conv2D(filters=384, activation='relu', kernel_size=(3,3), strides=(1,1), padding='same'),
+                layers.BatchNormalization(),
+                
+
+                #5th Convolutional Layer
+                layers.Conv2D(filters=256, activation='relu', kernel_size=(3,3), strides=(1,1), padding='same'),
+                layers.BatchNormalization(),
+                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+
+                #Passing it to a Fully Connected layer
+                layers.Flatten(),
+                # 1st Fully Connected Layer
+                layers.Dense(4096, activation='relu',  input_shape=(self.height, self.width, 3)),
+                layers.BatchNormalization(),
+                # Add Dropout to prevent overfitting
+                layers.Dropout(0.4),
+
+                #2nd Fully Connected Layer
+                layers.Dense(4096, activation='relu'),
+                layers.BatchNormalization(),
+                #Add Dropout
+                layers.Dropout(0.4),
+
+                #3rd Fully Connected Layer
+                layers.Dense(1000, activation='relu'),
+                layers.BatchNormalization(),
+                #Add Dropout
+                layers.Dropout(0.4),
+
+                #Output Layer
+                layers.Dense(1, activation='sigmoid'),
+                #layers.BatchNormalization())
+               
+                
+                ]),
+            4 : #VGG16
                 Sequential([
                     layers.ZeroPadding2D((1,1),input_shape=(self.height, self.width, 3)),
                     layers.Convolution2D(64, 3, 3, activation='relu'),
@@ -98,53 +216,6 @@ class Model:
                     layers.Dense(1, activation='sigmoid'),
 
                 ]),
-               
-            1 :  Sequential([     
-                
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(128, (5, 5), activation="relu"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(256, (5, 5), activation="relu"),
-                layers.MaxPooling2D(2,2),
-                layers.Dropout(0.2),                
-                layers.Conv2D(512, (5, 5), activation="relu"),      
-                layers.MaxPooling2D(2,2),
-
-                layers.Flatten(),   
-                layers.Dense(512, activation="relu"),
-                layers.Dropout(0.5),
-                
-                layers.Dense(1, activation='sigmoid'),
-                
-                ]),
-            2 :  Sequential([     
-                
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(128, (5, 5), activation="relu"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Flatten(),   
-                layers.Dense(128, activation="relu"),
-                layers.Dropout(0.5),
-                
-                layers.Dense(1, activation='sigmoid'),
-                
-                ]),
-            3 : None,
-            4 : None,
             5 : None,
             6 : None,
             7 : None,
