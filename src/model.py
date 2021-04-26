@@ -27,15 +27,79 @@ class Model:
     height, width = 512, 512
 
     #model.py
-    batch_size = 4
+    batch_size = 2
     default_epochs = 3
 
     def __init__(self):
         pass
 
+
+    def _get_optimizer(self, op):
+                
+        # map the inputs to the function blocks
+        return {
+            0 : tf.keras.optimizers.RMSprop(),
+            1 : tf.keras.optimizers.Adam(),
+            2 : tf.keras.optimizers.SGD(learning_rate=0.01),
+            3 : None,
+            4 : None,
+            5 : None,
+            6 : None,
+            7 : None,
+        }.get(op, None) 
+      
+
     def _get_RNN(self, op):
-        if op == 1:
-            return Sequential([     
+
+        return {
+            0 :  #VGG16
+                Sequential([
+                    layers.ZeroPadding2D((1,1),input_shape=(self.height, self.width, 3)),
+                    layers.Convolution2D(64, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(64, 3, 3, activation='relu'),
+                    layers.MaxPooling2D((2,2), strides=(2,2)),
+
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(128, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(128, 3, 3, activation='relu'),
+                    layers.MaxPooling2D((2,2), strides=(2,2)),
+
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(256, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(256, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(256, 3, 3, activation='relu'),
+                    layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
+
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
+
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.ZeroPadding2D((1,1)),
+                    layers.Convolution2D(512, 3, 3, activation='relu'),
+                    layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
+
+                    layers.Flatten(),
+                    layers.Dense(4096, activation='relu'),
+                    layers.Dropout(0.5),
+                    layers.Dense(4096, activation='relu'),
+                    layers.Dropout(0.5),
+                    layers.Dense(1, activation='sigmoid'),
+
+                ]),
+               
+            1 :  Sequential([     
                 
                 layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
                 layers.MaxPooling2D(2,2),
@@ -59,63 +123,42 @@ class Model:
                 
                 layers.Dense(1, activation='sigmoid'),
                 
-            ]) 
-        elif op == 2:
-            #VGG16
-            model = Sequential()
-            model.add(layers.ZeroPadding2D((1,1),input_shape=(self.height, self.width, 3)))
-            model.add(layers.Convolution2D(64, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(64, 3, 3, activation='relu'))
-            model.add(layers.MaxPooling2D((2,2), strides=(2,2)))
+                ]),
+            2 :  Sequential([     
+                
+                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
 
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(128, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(128, 3, 3, activation='relu'))
-            model.add(layers.MaxPooling2D((2,2), strides=(2,2)))
+                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(128, (5, 5), activation="relu"),
+                layers.MaxPooling2D(2,2),
 
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(256, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(256, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(256, 3, 3, activation='relu'))
-            model.add(layers.MaxPooling2D((2,2), padding='same', strides=(2,2)))
+                layers.Flatten(),   
+                layers.Dense(128, activation="relu"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+            3 : None,
+            4 : None,
+            5 : None,
+            6 : None,
+            7 : None,
+        }.get(op, None) 
 
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.MaxPooling2D((2,2), padding='same', strides=(2,2)))
 
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.ZeroPadding2D((1,1)))
-            model.add(layers.Convolution2D(512, 3, 3, activation='relu'))
-            model.add(layers.MaxPooling2D((2,2), padding='same', strides=(2,2)))
-
-            model.add(layers.Flatten())
-            model.add(layers.Dense(4096, activation='relu'))
-            model.add(layers.Dropout(0.5))
-            model.add(layers.Dense(4096, activation='relu'))
-            model.add(layers.Dropout(0.5))
-            model.add(layers.Dense(1, activation='sigmoid'))
-            return model
-
-    def create_model(self):
+    def create_model(self, rn, op):
     
-        model = self._get_RNN(1)
+        model = self._get_RNN(rn)
 
-        opt = tf.keras.optimizers.RMSprop()
 
         #sparse_categorical_crossentropy
         #binary_crossentropy
-        model.compile(optimizer=opt,
+        model.compile(optimizer=self._get_optimizer(op),
                         loss='binary_crossentropy',
                         metrics=['accuracy'])
 

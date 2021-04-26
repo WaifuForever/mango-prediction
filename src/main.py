@@ -111,7 +111,7 @@ def main():
               break
         
       if model_name != 'exit':
-        current_model = model.create_model()
+        current_model = model.create_model(2, 1)
       
 
     elif option == 2:      
