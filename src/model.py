@@ -198,7 +198,7 @@ class Model:
             steps_per_epoch= len(train_generator.filenames) // self.batch_size,       
             epochs=epochs,
             validation_data=validation_generator,
-            validation_steps= len(validation_generator.filenames) // (self.batch_size // 2),
+            validation_steps= len(validation_generator.filenames) // (self.batch_size),
             callbacks=callbacks
         )
 
@@ -303,38 +303,40 @@ class Model:
         predictedClassIndices = predict > 0.5
 
     
-       
-  
-        for path in DIR[1]:            
-            onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-            image_count = len(list(onlyfiles))
-
-            for x in range (0, image_count):
+        with open(self.MODEL_DIR + model_name + '/predict_result.csv', mode='w') as data_file:
+            for path in DIR[1]:            
+                onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+                image_count = len(list(onlyfiles))
+                print(image_count)
                 
-               
-                score = tf.nn.sigmoid(predict)     
+                for x in range (0, image_count):
+                                
+                    score = tf.nn.sigmoid(predict)     
+                    
+                    current_path = path + '/' + onlyfiles[x]
                 
-                current_path = path + '/' + onlyfiles[x]
-               
-                if predict[x] < 0.5:
+                    if predict[x] < 0.5:
 
-                    copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
-                    scores["Good"].append(np.max(score))
-                    print(onlyfiles[x], ":", predict[x], " - ", np.max(score) )
-                else:
-                    copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
-                    scores["Rotten"].append(np.max(score))
-                    print(onlyfiles[x], ":", predict[x], " - ", np.max(score))
-                x += 1
+                        copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
+                        scores["Good"].append(np.max(score))
+                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score) )
+                    else:
+                        copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
+                        scores["Rotten"].append(np.max(score))
+                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score))
 
-
-                with open(self.MODEL_DIR + model_name + 'predict_result.csv', mode='w') as data_file:
                     data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    #print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score) )   
+                    data_writer.writerow([onlyfiles[x], predict[x], np.max(score)])
+                    x += 1
 
-                    data_writer.writerow([predict,np.max(score)])
-                  
 
-        y_true = np.array([0] * 159 + [1] * 159)
+        
+
+            
+        '''          
+
+        y_true = np.array(len_files)
         y_pred =  predict > 0.5
 
         print(confusion_matrix(y_true, y_pred))
@@ -345,45 +347,6 @@ class Model:
         print(confusion_matrix(x_true, x_pred))
            
         '''
-        for path in DIR:
-
-            onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-            image_count = len(list(onlyfiles))
-
-            for x in range (0, image_count):
-            
-
-                current_path = path + '/' + onlyfiles[x]
-                
-                img = keras.preprocessing.image.load_img(
-                    current_path, target_size=(self.height, self.width)
-                )
-                img_array = keras.preprocessing.image.img_to_array(img)
-
-                img_array = img_array.reshape(1, self.height, self.width, 3)
-                img_array = img_array.astype('float64')
-                #img_array = tf.expand_dims(img_array, 0) # Create a batch
-
-                predictions = model.predict(img_array)
-                score = tf.nn.softmax(predictions[0])
-
-               
-                print("{pred} - {score} - {result}".format(pred=predictions, score=score.shape, result=np.argmax(score)))
-
-                if(np.argmax(score) == 0):           
-                    copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
-                    scores["Good"].append(np.max(score))
-                else:
-                    copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
-                    scores["Rotten"].append(np.max(score))
-
-                scores["Average"].append(np.max(score))
-                
-                print(
-                    "This image ({}) most likely belongs to {} with a {:.2f} percent confidence."
-                    .format(onlyfiles[x], class_names[np.argmax(score)], 100 * np.max(score))
-                )
-            '''
         #Chart().guessing_chart(model_name, scores)
 
     def load_model(self, model_name):
