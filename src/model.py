@@ -341,21 +341,24 @@ class Model:
             callbacks=callbacks
         )
 
-        
-        data = ({
-            'acc': history.history['accuracy'],
-            'val_acc': history.history['val_accuracy'],
-            'loss': history.history['loss'],
-            'val_loss': history.history['val_loss'],
-            'epochs_range' : epochs
-        })
+        self._save_model(model_name, model)
 
-        self._save_model(model_name, model, data)
-     
+        with open(self.MODEL_DIR + model_name + '/training_result.csv', mode='w') as data_file:
+            fields = ['acc', 'val_acc', 'loss', 'val_loss']
+            data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            data_writer.writerow(fields)
+            for x in range (0, len(history.history['accuracy'])):
+                data_writer.writerow([
+                    history.history['accuracy'][x],
+                    history.history['val_accuracy'][x],
+                    history.history['loss'][x],
+                    history.history['val_loss'][x]
+                ])       
+        
 
         return model
 
-    def _save_model(self, model_name, model, data):
+    def _save_model(self, model_name, model):
         try:
             os.mkdir(self.MODEL_DIR + model_name + '/')
         except OSError:
@@ -373,9 +376,6 @@ class Model:
         if os.path.isfile(self.MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
             model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
-        
-        #with open(self.MODEL_DIR + model_name + '/' + model_name + '_data.txt', 'w') as outfile:
-            #json.dump(data, outfile)
 
 
     def predict(self, model, model_name, DIR):    
