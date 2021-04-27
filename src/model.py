@@ -374,8 +374,8 @@ class Model:
             model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
         
-        with open(self.MODEL_DIR + model_name + '/' + model_name + '_data.txt', 'w') as outfile:
-            json.dump(data, outfile)
+        #with open(self.MODEL_DIR + model_name + '/' + model_name + '_data.txt', 'w') as outfile:
+            #json.dump(data, outfile)
 
 
     def predict(self, model, model_name, DIR):    
@@ -417,13 +417,6 @@ class Model:
         
         class_names = [x[1]for x in os.walk(self.RESULT_DIR)][0]
         print(class_names )
-
-        scores = {
-        "Good": [],
-        "Rotten": [],
-        "Average": []
-        }
-        
         
 
         predict_datagen = ImageDataGenerator(rescale=1./255)
@@ -443,34 +436,36 @@ class Model:
         print("Model accuracy: ", np.max(tf.nn.sigmoid(predict)))
     
         with open(self.MODEL_DIR + model_name + '/predict_result.csv', mode='w') as data_file:
+            headerList = ['filename', 'output', 'predict', 'assurance']
+            data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            data_writer.writerow(headerList)
             for path in DIR[1]:            
                 onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
                 image_count = len(list(onlyfiles))
                 print(image_count)
                 
-                for x in range (0, image_count):
-                                
-                     
-                    
+                for x in range (0, image_count):                                                 
                     current_path = path + '/' + onlyfiles[x]
                 
                     if predict[x] <= 0.5:                        
                         copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
                         guessing = (0.5 - predict[x])
-                        scores["Good"].append(guessing)
+                        #scores["Good"].append(guessing)
                         print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
+                        data_writer.writerow([onlyfiles[x], 0, float(predict[x]), float(guessing)])
                     else:
                         guessing = (predict[x] - 0.5)
                         copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
-                        scores["Rotten"].append(guessing)
+                        #scores["Rotten"].append(guessing)
                         print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
+                        data_writer.writerow([onlyfiles[x], 1, float(predict[x]), float(guessing)])
 
-                    data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    
                     #print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing )   
-                    data_writer.writerow([onlyfiles[x], predict[x], guessing])
+                    
                     x += 1
 
-        Chart().assurance_chart(model_name, scores)
+        Chart().assurance_chart(model_name)
        
 
             

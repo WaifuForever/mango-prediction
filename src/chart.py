@@ -3,12 +3,14 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatch
+import pandas as pd
+
 
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
 import PIL
-import json
+
 
 class Chart:
    
@@ -69,7 +71,7 @@ class Chart:
     def training_chart(self, model_name):
         try:
             with open( self.MODEL_DIR + model_name + '/' + model_name + '_data.txt') as json_file:
-                data = json.load(json_file)
+                data = None
                 epochs = range(data['epochs_range'])
 
                 plt.style.use("fivethirtyeight")
@@ -117,106 +119,109 @@ class Chart:
         plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_precision' +'.png')    
         plt.show()
 
-    def assurance_chart(self, model_name, scores):
+    def assurance_chart(self, model_name):
+        with open(self.MODEL_DIR + model_name + '/predict_result.csv', 'r') as read_obj:
+            try:
+                col_list = ["assurance", "output"]                
+                data = pd.read_csv(read_obj, usecols=col_list)                             
 
-
-
-        plt.style.use("fivethirtyeight")
-        ax = plt.subplot()
-      
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,
+                good = data[data['output'] == 0]['assurance']      
+                rotten = data[data['output'] == 1]['assurance']
+               
+                good = good.values.tolist()
+                rotten = rotten.values.tolist()
+               
+                plt.style.use("fivethirtyeight")
+                ax = plt.subplot()
             
-            bbox=props)
+                # these are matplotlib.patch.Patch properties
+                props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
-        plt.plot(range(len(scores["Good"])), scores["Good"], label='Assurance', linewidth=1.0)        
-        plt.legend(loc='lower right')
-        plt.title('Good Assurance')  
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_1.png')  
-        plt.show()
+                # place a text box in upper left in axes coords
+                ax.text(
+                    0.78,
+                    1.08,
+                    "scale = [0-50]",
+                    transform=ax.transAxes,
+                    fontsize=14,
+                    
+                    bbox=props)
+                            
 
+                plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
+                plt.legend(loc='lower right')
+                plt.title('Good Assurance')  
+                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_1.png')  
+                plt.show()
 
-        ax = plt.subplot()
-      
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,            
-            bbox=props)
-
-
-        plt.plot(range(len(scores["Rotten"])), scores["Rotten"], label='Assurance', linewidth=1.0)
-        plt.legend(loc='lower right')
-        plt.title('Rotten Assurance')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_2.png')
-        plt.show()
-        #plt.plot(range(len(scores["Average"])), scores["Average"], label="Average", linewidth=1.0)
-
-        
-
-
-        average_g = 0
-        average_r = 0
-
-        for y in scores["Good"]:
-            average_g += y
-
-        for y in scores["Rotten"]:
-            average_r += y
-
-        average_g = float(average_g/len(scores["Good"]))
-        average_r = float(average_r/len(scores["Rotten"]))
-
-        
-        dictlist = []
-        for key in scores.keys():
-            dictlist.append(key)
-        
-       
-        x_indexes = np.arange(len(dictlist))
-
-        y_indexes = [
-            average_g,
-            average_r,
-            (average_g + average_r)/2
-        ]
-        
-
-        ax = plt.subplot()
-      
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,
+                ax = plt.subplot()
             
-            bbox=props)
-             
-        plt.bar(x_indexes, y_indexes , width=0.5)       
-        plt.xticks(ticks=x_indexes, labels=dictlist)
-        plt.title('Assurance Average')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_assurance_3' +'.png')    
-        plt.show()
+                # these are matplotlib.patch.Patch properties
+                props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+                # place a text box in upper left in axes coords
+                ax.text(
+                    0.78,
+                    1.08,
+                    "scale = [0-50]",
+                    transform=ax.transAxes,
+                    fontsize=14,            
+                    bbox=props)
 
 
-    
-    
+                plt.plot(range(len(rotten)), rotten, label='Assurance', linewidth=1.0)
+                plt.legend(loc='lower right')
+                plt.title('Rotten Assurance')
+                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_2.png')
+                plt.show()
+                #plt.plot(range(len(scores["Average"])), scores["Average"], label="Average", linewidth=1.0)
+
+
+                average_g = 0
+                average_r = 0
+
+                for y in good:
+                    average_g += y
+
+                for y in rotten:
+                    average_r += y
+
+                average_g = float(average_g/len(good))
+                average_r = float(average_r/len(rotten))
+
+                
+                dictlist = ["Good", "Rotten", "Average"]
+                
+                            
+                x_indexes = np.arange(len(dictlist))
+
+                y_indexes = [
+                    average_g,
+                    average_r,
+                    (average_g + average_r)/2
+                ]
+                
+
+                ax = plt.subplot()
+            
+                # these are matplotlib.patch.Patch properties
+                props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+                # place a text box in upper left in axes coords
+                ax.text(
+                    0.78,
+                    1.08,
+                    "scale = [0-50]",
+                    transform=ax.transAxes,
+                    fontsize=14,
+                    
+                    bbox=props)
+                    
+                plt.bar(x_indexes, y_indexes , width=0.5)       
+                plt.xticks(ticks=x_indexes, labels=dictlist)
+                plt.title('Assurance Average')
+                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_assurance_3' +'.png')    
+                plt.show()    
+
+            except ValueError as e:
+                print(e)     
