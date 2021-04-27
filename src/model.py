@@ -3,7 +3,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import model_from_json
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from sklearn.metrics import confusion_matrix
 from shutil import copyfile
 from chart import Chart
@@ -24,11 +24,11 @@ class Model:
     TRAINING_DIR = "./Data/Training"
     VALIDATION_DIR = "./Data/Validation"
     MODEL_DIR = "./Models/"
-    height, width = 512, 512
+    height, width = 400, 400
 
     #model.py
     batch_size = 4
-    default_epochs = 3
+   
 
     def __init__(self):
         pass
@@ -39,7 +39,7 @@ class Model:
         # map the inputs to the function blocks
         return {
             0 : tf.keras.optimizers.RMSprop(),
-            1 : tf.keras.optimizers.Adam(),
+            1 : tf.keras.optimizers.Adam(learning_rate=0.0001),
             2 : tf.keras.optimizers.SGD(learning_rate=0.01),
             3 : None,
             4 : None,
@@ -219,7 +219,35 @@ class Model:
                     layers.Dense(1, activation='sigmoid'),
 
                 ]),
-            5 : None,
+            #Jojo2+1-64 sigmoid
+            5 : Sequential([     
+                
+                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+                layers.Conv2D(32, (5, 5), activation=tf.keras.layers.LeakyReLU(alpha=0.2), padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+
+                layers.Conv2D(64, (5, 5), activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+                layers.Conv2D(64, (5, 5), activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+
+                layers.Conv2D(64, (5, 5), activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                layers.Dropout(0.2),
+                layers.BatchNormalization(),                
+
+                layers.Flatten(),   
+                layers.Dense(512, activation="relu"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
             6 : None,
             7 : None,
         }.get(op, None) 
@@ -254,9 +282,9 @@ class Model:
         DIR = pathlib.Path(self.TRAINING_DIR)
         #Data().resize_images(self.width, self.height)
         
-        gen = ImageDataGenerator(rotation_range=10, width_shift_range=0.1,
-            height_shift_range=0.1, rescale=1./255,
-            channel_shift_range=10, horizontal_flip=True, fill_mode="nearest")
+        gen = ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
+            height_shift_range=0.05, rescale=1./255, brightness_range=(0.3, 0.65),
+            channel_shift_range=10, horizontal_flip=True, vertical_flip=True, fill_mode="nearest")
 
         test_datagen = ImageDataGenerator(rescale=1./255, validation_split=0.7)
 
@@ -267,11 +295,14 @@ class Model:
             shuffle=True,       
             color_mode="rgb",
             subset='training',        
-            class_mode='binary',
-            save_format='.jpeg',
-            save_to_dir="./Data/Augmented",
-            save_prefix=model_name + " - "
+            class_mode='binary'           
         )
+
+        '''
+        save_format='.jpeg',
+        save_to_dir="./Data/Augmented",
+        save_prefix=model_name + " - "
+        '''
 
         validation_generator = test_datagen.flow_from_directory(
             self.VALIDATION_DIR,
@@ -283,22 +314,13 @@ class Model:
             class_mode='binary'
         )
 
-        print(train_generator.image_shape)
-        print(validation_generator.image_shape)
-
-        print(train_generator)
-        print(validation_generator)
-
-        class_names = []
-        for key in train_generator.class_indices.keys():    
-            class_names.append(key)
-
-        print(class_names)
+        print(train_generator.class_indices)
+        
 
         reduce_lr=tf.keras.callbacks.ReduceLROnPlateau(
-            monitor="val_loss",
+            monitor="loss",
             factor=0.5,
-            patience=2,
+            patience=5,
             verbose=1
         )
         '''e_stop=tf.keras.callbacks.EarlyStopping(
@@ -501,4 +523,4 @@ class Model:
                     return loaded_model
                     
         
-       
+  

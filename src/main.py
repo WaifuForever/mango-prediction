@@ -8,7 +8,7 @@ import PIL
 import sys 
 import random
 
-
+from tensorflow.keras.preprocessing.image import load_img, img_to_array, save_img
 from chart import Chart
 from model import Model
 
@@ -33,11 +33,11 @@ MODEL_DIR = "./Models/"
 #data.py
 width = 512
 height = 512
-
+default_epochs = 3
 current_model = None
   
        
-
+     
 def evaluate_perfomance(model_name):
     
   hits_g = 0
@@ -57,9 +57,11 @@ def evaluate_perfomance(model_name):
   Chart().precision_chart(model_name, [hits_g, hits_r, total_data])
 
 
+
+
+
 def track_data():
   for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
-    
     if not filename[1].startswith('G - '):
       src = TRAINING_DIR + '/Good/' + filename[1]    
       dst = TRAINING_DIR + '/Good/G - '+ filename[1]
@@ -86,7 +88,8 @@ def use_GPU():
   print("Num GPUs Available: ", tf.config.experimental.list_physical_devices('GPU'))
   tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-def main():    
+def main():  
+  
   model = Model()
   while True:
 
@@ -111,7 +114,8 @@ def main():
               break
         
       if model_name != 'exit':
-        current_model = model.create_model(4, 0)
+
+        current_model = model.create_model(5, 1)
       
 
     elif option == 2:      
@@ -152,16 +156,19 @@ def main():
       if option == 1:
           while True:
             try:
-                epochs = int(input("Enter the number of generations: "))
-                break
+                epochs = input("Enter the number of generations: ")
+                if epochs == 'exit':
+                  break
+                else:
+                  epochs = int(epochs)
+                  current_model = model.train_model(current_model, model_name, epochs)
+                  break
                 
             except ValueError:
                 epochs = default_epochs
                 print("Number of generations set to %d" % default_epochs)
+                current_model = model.train_model(current_model, model_name, epochs)
                 break
-
-          
-          current_model = model.train_model(current_model, model_name, epochs)
 
       elif option == 2:
       
@@ -183,7 +190,7 @@ def main():
 
         model.predict(current_model, model_name, DIR) 
         
-        model.evaluate_perfomance(model_name)
+        evaluate_perfomance(model_name)
 
       elif option == 3:
           while True:        

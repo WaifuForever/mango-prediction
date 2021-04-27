@@ -7,3 +7,4 @@ Inside Data Folder there is a Result folder with 2 subfolders named Good and Rot
 To run Tensorflow, you need at least 3 GB of free RAM or a GPU
 
 do not use vgg16 with adam optimizer!
+Train_Generator no longer saves generated images into augmented folder, this part of the code is commented
