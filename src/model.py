@@ -90,11 +90,11 @@ class Model:
 
                 layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
                 layers.MaxPooling2D(2,2),
-                layers.Conv2D(128, (5, 5), activation="relu"),
+                layers.Conv2D(128, (5, 5), activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
                 layers.MaxPooling2D(2,2),
 
                 layers.Flatten(),   
-                layers.Dense(128, activation="relu"),
+                layers.Dense(128, activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
                 layers.Dropout(0.5),
                 
                 layers.Dense(1, activation='sigmoid'),
@@ -214,7 +214,7 @@ class Model:
                     layers.Flatten(),
                     layers.Dense(4096, activation='relu'),
                     layers.Dropout(0.5),
-                    layers.Dense(4096, activation='relu'),
+                    layers.Dense(4096, activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
                     layers.Dropout(0.5),
                     layers.Dense(1, activation='sigmoid'),
 
