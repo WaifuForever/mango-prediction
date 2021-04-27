@@ -91,6 +91,7 @@ def use_GPU():
 def main():  
   
   model = Model()
+  model_name = ""
   while True:
 
     print("\nTENSORFLOW IMAGE CLASSIFIER")
