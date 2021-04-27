@@ -2,8 +2,11 @@ import os
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatch
+
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
+
 import PIL
 import json
 
@@ -114,21 +117,56 @@ class Chart:
         plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_precision' +'.png')    
         plt.show()
 
-    def guessing_chart(self, model_name, scores):
+    def assurance_chart(self, model_name, scores):
+
+
 
         plt.style.use("fivethirtyeight")
-        
-        plt.figure(figsize=(8, 8))
-               
-        plt.plot(range(len(scores["Good"])), scores["Good"], linewidth=1.0)
-        plt.plot(range(len(scores["Rotten"])), scores["Rotten"], linewidth=1.0)
+        ax = plt.subplot()
+      
+        # these are matplotlib.patch.Patch properties
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+        # place a text box in upper left in axes coords
+        ax.text(
+            0.78,
+            1.08,
+            "scale = [0-50]",
+            transform=ax.transAxes,
+            fontsize=14,
+            
+            bbox=props)
+
+        plt.plot(range(len(scores["Good"])), scores["Good"], label='Assurance', linewidth=1.0)        
+        plt.legend(loc='lower right')
+        plt.title('Good Assurance')  
+        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_1.png')  
+        plt.show()
+
+
+        ax = plt.subplot()
+      
+        # these are matplotlib.patch.Patch properties
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+        # place a text box in upper left in axes coords
+        ax.text(
+            0.78,
+            1.08,
+            "scale = [0-50]",
+            transform=ax.transAxes,
+            fontsize=14,            
+            bbox=props)
+
+
+        plt.plot(range(len(scores["Rotten"])), scores["Rotten"], label='Assurance', linewidth=1.0)
+        plt.legend(loc='lower right')
+        plt.title('Rotten Assurance')
+        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_2.png')
+        plt.show()
         #plt.plot(range(len(scores["Average"])), scores["Average"], label="Average", linewidth=1.0)
 
-        plt.legend(loc='lower right')
-        plt.title('Guessing')
-       
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_1' +'.png')    
-        plt.show()
+        
 
 
         average_g = 0
@@ -140,21 +178,43 @@ class Chart:
         for y in scores["Rotten"]:
             average_r += y
 
-        average_g = average_g/len(scores["Good"])
-        average_r = average_r/len(scores["Rotten"])
+        average_g = float(average_g/len(scores["Good"]))
+        average_r = float(average_r/len(scores["Rotten"]))
 
+        
         dictlist = []
-        for key, value in scores.items():
+        for key in scores.keys():
             dictlist.append(key)
-
+        
        
         x_indexes = np.arange(len(dictlist))
-        width=0.5        
-        plt.bar(dictlist, [average_g, average_r, (average_g + average_r)/2], width=width,)
-       
+
+        y_indexes = [
+            average_g,
+            average_r,
+            (average_g + average_r)/2
+        ]
+        
+
+        ax = plt.subplot()
+      
+        # these are matplotlib.patch.Patch properties
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+        # place a text box in upper left in axes coords
+        ax.text(
+            0.78,
+            1.08,
+            "scale = [0-50]",
+            transform=ax.transAxes,
+            fontsize=14,
+            
+            bbox=props)
+             
+        plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
-        plt.title('Guessing')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2' +'.png')    
+        plt.title('Assurance Average')
+        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_assurance_3' +'.png')    
         plt.show()
 
 

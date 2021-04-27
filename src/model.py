@@ -283,7 +283,7 @@ class Model:
         #Data().resize_images(self.width, self.height)
         
         gen = ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
-            height_shift_range=0.05, rescale=1./255, brightness_range=(0.3, 0.65),
+            height_shift_range=0.05, rescale=1./255, brightness_range=(0.3, 0.7),
             channel_shift_range=10, horizontal_flip=True, vertical_flip=True, fill_mode="nearest")
 
         test_datagen = ImageDataGenerator(rescale=1./255, validation_split=0.7)
@@ -440,7 +440,7 @@ class Model:
         predict = model.predict(predict_generator,steps = len_files)
 
         predictedClassIndices = predict > 0.5
-
+        print("Model accuracy: ", np.max(tf.nn.sigmoid(predict)))
     
         with open(self.MODEL_DIR + model_name + '/predict_result.csv', mode='w') as data_file:
             for path in DIR[1]:            
@@ -450,27 +450,28 @@ class Model:
                 
                 for x in range (0, image_count):
                                 
-                    score = tf.nn.sigmoid(predict)     
+                     
                     
                     current_path = path + '/' + onlyfiles[x]
                 
-                    if predict[x] < 0.5:
-
+                    if predict[x] <= 0.5:                        
                         copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
-                        scores["Good"].append(np.max(score))
-                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score) )
+                        guessing = (0.5 - predict[x])
+                        scores["Good"].append(guessing)
+                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
                     else:
+                        guessing = (predict[x] - 0.5)
                         copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
-                        scores["Rotten"].append(np.max(score))
-                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score))
+                        scores["Rotten"].append(guessing)
+                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
 
                     data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                    #print(x, " ", onlyfiles[x], ":", predict[x], " - ", np.max(score) )   
-                    data_writer.writerow([onlyfiles[x], predict[x], np.max(score)])
+                    #print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing )   
+                    data_writer.writerow([onlyfiles[x], predict[x], guessing])
                     x += 1
 
-
-        
+        Chart().assurance_chart(model_name, scores)
+       
 
             
         '''          
@@ -486,7 +487,7 @@ class Model:
         print(confusion_matrix(x_true, x_pred))
            
         '''
-        #Chart().guessing_chart(model_name, scores)
+        
 
     def load_model(self, model_name):
         if os.path.isfile(self.MODEL_DIR + model_name + '/' + model_name +  '.h5') is True:
