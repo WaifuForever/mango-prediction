@@ -49,9 +49,6 @@ class Model:
         }.get(op, None) 
       
   
-
-
-
     def _get_CNN(self, op):
 
         return { 
@@ -358,6 +355,7 @@ class Model:
 
         return model
 
+
     def _save_model(self, model_name, model):
         try:
             os.mkdir(self.MODEL_DIR + model_name + '/')
@@ -376,7 +374,6 @@ class Model:
         if os.path.isfile(self.MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
             model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
-
 
     def predict(self, model, model_name, DIR):    
 

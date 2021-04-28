@@ -197,19 +197,20 @@ def main():
           while True:        
             print('\nChoose the Data to be shown')     
             print("Select a Option:")
-            print("1 - Summary")
-            print("2 - Guessing_1")
-            print("3 - Guessing_2")
-            print("4 - Training_1")
-            print("5 - Training_2")
-            print("6 - Precision")
-            print("7 - Return to previous menu")
+            print("1 - Summary")           
+            print("2 - Training_1")
+            print("3 - Training_2")
+            print("4 - Assurance_1")
+            print("5 - Assurance_2")
+            print("6 - Assurance_3")                       
+            print("7 - Precision")
+            print("8 - Return to previous menu")
             op = int(input())
           
             if op == 1:
                 current_model.summary() 
             
-            elif op == 7:
+            elif op == 8:
                 print("\n")
                 break;
             else:

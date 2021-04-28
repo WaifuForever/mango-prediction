@@ -18,61 +18,36 @@ class Chart:
     def __init__(self):
        pass
 
+    def _display_chart(self, model_name, chart_name):
+        try:
+            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + chart_name)      
+            im.show()
+                     
+
+        except Exception as e:
+            print(e)
+            print("The file %s could not be found\n" % (model_name + chart_name))
+            
+
     def display_charts(self, model_name, op):      
-        # open method used to open different extension image file
-        if op == 2:
-            try:
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_1.png')      
-                im.show()
 
-            except Exception as e:
-                print(e)
-                print("The file %s could not be found\n" % (model_name + '_guessing_1' + '.png'))
-            
-
-        elif op == 3:
-            try:
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_guessing_2.png')      
-                im.show()
-            except Exception as e:
-                print(e)
-                print("The file %s could not be found\n" % (model_name + '_guessing_2' + '.png'))
-        
-            
-        elif op == 4:
-            try:
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training_1.png')    
-                im.show()
-            except Exception as e:
-                print(e)
-                self.training_chart(model_name)
-            
-        elif op == 5:
-            try:
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_training_2.png')    
-                im.show()
-            except Exception as e:
-                print(e)
-                self.training_chart(model_name)           
-            
-
-        elif op == 6:       
-            try:
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + '_precision.png')      
-                im.show()
-            except Exception as e:
-                print(e)
-                print("The file %s could not be found\n" % (model_name + '_precision' + '.png'))
-            
-        
-        else:
-            print("Invalid option!!\n")
+        # map the inputs to the function blocks
+        return {
+            2 : self._display_chart(model_name, '_training_1.png'),
+            3 : self._display_chart(model_name, '_training_2.png'),          
+            4 : self._display_chart(model_name, '_assurance_1.png'),
+            5 : self._display_chart(model_name, '_assurance_2.png'),
+            6 : self._display_chart(model_name, '_assurance_3.png'),
+            7 : self._display_chart(model_name, '_precision.png'),
+        }.get(op, None)
+             
           
     def training_chart(self, model_name):
         try:
-            with open( self.MODEL_DIR + model_name + '/' + model_name + '_data.txt') as json_file:
-                data = None
-                epochs = range(data['epochs_range'])
+            with open(self.MODEL_DIR + model_name + '/training_result.csv', 'r') as read_obj:
+                data = pd.read_csv(read_obj)   
+
+                epochs = range(len(data['acc']))
 
                 plt.style.use("fivethirtyeight")
                 #plt.figure(figsize=(8, 8))
