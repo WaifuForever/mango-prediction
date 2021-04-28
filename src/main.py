@@ -206,6 +206,15 @@ def main():
             print("7 - Precision")
             print("8 - Return to previous menu")
             op = int(input())
+
+            switcher = {
+              2: "_training_1",
+              3: "_training_2",
+              4: "_assurance_1",
+              5: "_assurance_2",
+              6: "_assurance_3",
+              7: "_precision",              
+            }
           
             if op == 1:
                 current_model.summary() 
@@ -214,7 +223,7 @@ def main():
                 print("\n")
                 break;
             else:
-                Chart().display_charts(model_name, op)
+                Chart().display_chart(model_name, switcher[op])
                     
       elif option == 4:
         current_model = None
