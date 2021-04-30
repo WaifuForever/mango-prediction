@@ -9,7 +9,6 @@ from shutil import copyfile
 from chart import Chart
 
 import numpy as np
-import json
 import pathlib
 import os
 import tensorflow as tf
@@ -27,20 +26,20 @@ class Model:
     height, width = 400, 400
 
     #model.py
-    batch_size = 4
+    #batch_size = 4
    
 
     def __init__(self):
         pass
 
 
-    def _get_optimizer(self, op):
+    def _get_optimizer(self, op, learning_rate):
                 
         # map the inputs to the function blocks
         return {
-            0 : tf.keras.optimizers.RMSprop(),
-            1 : tf.keras.optimizers.Adam(learning_rate=0.0001),
-            2 : tf.keras.optimizers.SGD(learning_rate=0.01),
+            0 : tf.keras.optimizers.RMSprop(learning_rate=learning_rate),
+            1 : tf.keras.optimizers.Adam(learning_rate=learning_rate),
+            2 : tf.keras.optimizers.SGD(learning_rate=learning_rate),
             3 : None,
             4 : None,
             5 : None,
@@ -49,86 +48,40 @@ class Model:
         }.get(op, None) 
       
   
-    def _get_CNN(self, op):
+    def _get_CNN(self, pool_size, op):
 
         return { 
-            #Jojo2+1-64   
+            #LeNet-5            
             0 : Sequential([     
-                
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(64, (5, 5), activation="relu"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(64, (5, 5), activation="relu"),
-                layers.MaxPooling2D(2,2),
-                layers.Dropout(0.2),                
-
-                layers.Flatten(),   
-                layers.Dense(512, activation="relu"),
-                layers.Dropout(0.5),
-                
-                layers.Dense(1, activation='sigmoid'),
-                
-                ]),
-
-            #Jojo3-128
-            1 : Sequential([     
-                
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-
-                layers.Conv2D(64, (5, 5), activation="relu", padding="same"),
-                layers.MaxPooling2D(2,2),
-                layers.Conv2D(128, (5, 5), activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
-                layers.MaxPooling2D(2,2),
-
-                layers.Flatten(),   
-                layers.Dense(128, activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
-                layers.Dropout(0.5),
-                
-                layers.Dense(1, activation='sigmoid'),
-                
-                ]),
-
-            #LeNet-5
-            2 : Sequential([     
                
-                layers.Conv2D(32, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.Conv2D(32, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
                 layers.MaxPooling2D((2,2), strides=2),
 
-                layers.Conv2D(48, (5, 5), activation="relu", padding="valid"),
+                layers.Conv2D(48, pool_size, activation="sigmoid", padding="valid"),
                 layers.MaxPooling2D((2,2), strides=2),
                 
                 layers.Flatten(),   
-                layers.Dense(256, activation="relu"),
+                layers.Dense(256, activation="sigmoid"),
                 layers.Dropout(0.2),
-                layers.Dense(84, activation="relu"),
+                layers.Dense(84, activation="sigmoid"),
                 layers.Dense(1, activation="sigmoid"),
             
             
                 ]),
 
             #AlexNet
-            3 : Sequential([     
+            1 : Sequential([     
                                                                 
                 #1st Convolutional Layer
                 layers.Conv2D(filters=96, activation='relu', input_shape=(self.height, self.width, 3), kernel_size=(11,11), strides=(4,4), padding='same'),
                 layers.BatchNormalization(),               
-                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+                layers.MaxPooling2D(pool_size=pool_size, strides=(2,2), padding='same'),
 
 
                 #2nd Convolutional Layer
                 layers.Conv2D(filters=256, activation='relu', kernel_size=(5, 5), strides=(1,1), padding='same'),
                 layers.BatchNormalization(),
-                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+                layers.MaxPooling2D(pool_size=pool_size, strides=(2,2), padding='same'),
 
                 #3rd Convolutional Layer
                 layers.Conv2D(filters=384, activation='relu', kernel_size=(3,3), strides=(1,1), padding='same'),
@@ -142,7 +95,7 @@ class Model:
                 #5th Convolutional Layer
                 layers.Conv2D(filters=256, activation='relu', kernel_size=(3,3), strides=(1,1), padding='same'),
                 layers.BatchNormalization(),
-                layers.MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'),
+                layers.MaxPooling2D(pool_size=pool_size, strides=(2,2), padding='same'),
 
                 #Passing it to a Fully Connected layer
                 layers.Flatten(),
@@ -171,72 +124,70 @@ class Model:
                 
                 ]),
             #VGG16
-            4 : Sequential([
-                    layers.ZeroPadding2D((1,1),input_shape=(self.height, self.width, 3)),
+            2 : Sequential([
+                    layers.ZeroPadding2D(pool_size,input_shape=(self.height, self.width, 3)),
                     layers.Convolution2D(64, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(64, 3, 3, activation='relu'),
                     layers.MaxPooling2D((2,2), strides=(2,2)),
 
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(128, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(128, 3, 3, activation='relu'),
                     layers.MaxPooling2D((2,2), strides=(2,2)),
 
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(256, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(256, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(256, 3, 3, activation='relu'),
                     layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
 
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
                     layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
 
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
-                    layers.ZeroPadding2D((1,1)),
+                    layers.ZeroPadding2D(pool_size),
                     layers.Convolution2D(512, 3, 3, activation='relu'),
                     layers.MaxPooling2D((2,2), padding='same', strides=(2,2)),
 
                     layers.Flatten(),
                     layers.Dense(4096, activation='relu'),
                     layers.Dropout(0.5),
-                    layers.Dense(4096, activation=tf.keras.layers.LeakyReLU(alpha=0.2)),
+                    layers.Dense(4096, activation='linear'),                    
                     layers.Dropout(0.5),
                     layers.Dense(1, activation='sigmoid'),
 
                 ]),
-            #Jojo2+1-64 sigmoid
-            5 : Sequential([     
+
+            #relu-sigmoid[3-512]    broken?
+            3 : Sequential([     
                 
-                layers.Conv2D(16, (5, 5), activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.Conv2D(16, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
                 layers.MaxPooling2D(2,2),
-                layers.BatchNormalization(),
-                layers.Conv2D(32, (5, 5), activation=tf.keras.layers.LeakyReLU(alpha=0.2), padding="same"),
+                layers.Conv2D(32, pool_size, activation="relu", padding="same"),
                 layers.MaxPooling2D(2,2),
-                layers.BatchNormalization(),
 
-                layers.Conv2D(64, (5, 5), activation="sigmoid", padding="same"),
+                layers.Conv2D(64, pool_size, activation="relu", padding="same"),
                 layers.MaxPooling2D(2,2),
-                layers.BatchNormalization(),
-                layers.Conv2D(64, (5, 5), activation="sigmoid"),
+                layers.Conv2D(128, pool_size, activation="relu"),
                 layers.MaxPooling2D(2,2),
-                layers.BatchNormalization(),
 
-                layers.Conv2D(64, (5, 5), activation="sigmoid"),
+                layers.Conv2D(256, pool_size, activation="relu"),
                 layers.MaxPooling2D(2,2),
-                layers.Dropout(0.2),
-                layers.BatchNormalization(),                
+                layers.Dropout(0.2), 
+                layers.Conv2D(512, pool_size, activation="relu"),
+                layers.MaxPooling2D(2,2),               
 
                 layers.Flatten(),   
                 layers.Dense(512, activation="relu"),
@@ -245,36 +196,173 @@ class Model:
                 layers.Dense(1, activation='sigmoid'),
                 
                 ]),
-            6 : None,
-            7 : None,
+
+            #relu-linear-sigmoid[2-128] broken?
+            4 : Sequential([     
+                
+                layers.Conv2D(16, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(32, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Conv2D(64, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.Conv2D(128, pool_size, activation='linear'),                              
+                layers.MaxPooling2D(2,2),
+                
+
+                layers.Flatten(),   
+                layers.Dense(128, activation='linear'),
+                layers.Dropout(0.5),                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+
+            #relu-sigmoid[4-2048]  
+            5 : Sequential([
+                
+                layers.Conv2D(16, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),            
+                layers.Conv2D(32, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(), 
+
+                layers.Conv2D(64, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),            
+                layers.Conv2D(128, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(), 
+
+                layers.Conv2D(256, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),            
+                layers.Conv2D(512, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(), 
+
+                layers.Conv2D(1024, pool_size, activation="relu", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),            
+                layers.Conv2D(2048, pool_size, activation="relu", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),           
+                
+
+                layers.Flatten(),   
+                layers.Dense(2048, activation="relu"),
+                layers.Dropout(0.5),                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+            #sigmoid+BN[2+1/2-256] broken?
+            6 : Sequential([     
+                
+                layers.Conv2D(16, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+                layers.Conv2D(32, pool_size, activation='sigmoid', padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+
+                layers.Conv2D(64, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+                layers.Conv2D(128, pool_size, activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
+
+                layers.Conv2D(256, pool_size, activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                layers.Dropout(0.2),
+                layers.BatchNormalization(),                
+
+                layers.Flatten(),   
+                layers.Dense(256, activation="sigmoid"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+            #sigmoid+BN[4-4096]
+            7 : Sequential([     
+                layers.Conv2D(32, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(64, pool_size, activation='sigmoid', padding="same"),
+                layers.MaxPooling2D(2,2),
+                
+                layers.Conv2D(128, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(256, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),
+
+                layers.Conv2D(512, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(1024, pool_size, activation='sigmoid', padding="same"),
+                layers.MaxPooling2D(2,2),            
+
+                layers.Conv2D(2048, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(4096, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),                             
+                layers.Dropout(0.2),
+                layers.BatchNormalization(),                
+
+                layers.Flatten(),   
+                layers.Dense(4096, activation="sigmoid"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+               
+                
+                ]),
+            #sigmoid+BN[2+1/2-512]  broken?          
+            8 : Sequential([     
+                
+                layers.Conv2D(32, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(64, pool_size, activation='sigmoid', padding="same"),
+                layers.MaxPooling2D(2,2),
+                
+                layers.Conv2D(128, pool_size, activation="sigmoid", padding="same"),
+                layers.MaxPooling2D(2,2),                
+                layers.Conv2D(256, pool_size, activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                
+
+                layers.Conv2D(512, pool_size, activation="sigmoid"),
+                layers.MaxPooling2D(2,2),
+                layers.Dropout(0.2),
+                layers.BatchNormalization(),                
+
+                layers.Flatten(),   
+                layers.Dense(512, activation="sigmoid"),
+                layers.Dropout(0.5),
+                
+                layers.Dense(1, activation='sigmoid'),
+                
+                ]),
+            
         }.get(op, None) 
 
 
-    def create_model(self, cn, op):
+    def create_model(self, cn, pool_size, lr, opt):
     
-        model = self._get_CNN(cn)
-
+        model = self._get_CNN((3,3), cn)
 
         #sparse_categorical_crossentropy
         #binary_crossentropy
-        model.compile(optimizer=self._get_optimizer(op),
+        model.compile(optimizer=self._get_optimizer(opt, lr),
                         loss='binary_crossentropy',
                         metrics=['accuracy'])
 
         model.summary()
-           
+          
         return model
-        #model = train_data(None, model_name, epochs)     
-
-
-        #model.save(MODEL_DIR + model_name + '/'+ model_name)
-        #Chart().training_chart(model_name)
         
-        #predict(model, model_name)
-        #evaluate_perfomance(model_name)
         
-
-    def train_model(self, model, model_name, epochs):  
+    def train_model(self, model, model_name, epochs, batch_size):  
         
         DIR = pathlib.Path(self.TRAINING_DIR)
         #Data().resize_images(self.width, self.height)
@@ -288,7 +376,7 @@ class Model:
         train_generator = gen.flow_from_directory(
             self.TRAINING_DIR,
             target_size=(self.width, self.height),
-            batch_size=self.batch_size, 
+            batch_size=batch_size, 
             shuffle=True,       
             color_mode="rgb",
             subset='training',        
@@ -306,7 +394,7 @@ class Model:
             target_size=(self.width, self.height),
             shuffle=True, 
             color_mode="rgb",
-            batch_size=self.batch_size//2,            
+            batch_size=batch_size//2,            
             subset='validation',
             class_mode='binary'
         )
@@ -331,10 +419,10 @@ class Model:
         
         history = model.fit(
             train_generator, 
-            steps_per_epoch= len(train_generator.filenames) // self.batch_size,       
+            steps_per_epoch= len(train_generator.filenames) // batch_size,       
             epochs=epochs,
             validation_data=validation_generator,
-            validation_steps= len(validation_generator.filenames) // (self.batch_size) // 2,
+            validation_steps= len(validation_generator.filenames) // (batch_size) // 2,
             callbacks=callbacks
         )
 
@@ -352,7 +440,7 @@ class Model:
                     history.history['val_loss'][x]
                 ])       
         
-
+               
         return model
 
 
@@ -363,7 +451,13 @@ class Model:
             print ("Creation of the directory for %s failed" % model_name)
         else:
             print ("Successfully created the directory for %s " % model_name)
-        
+        keras.utils.plot_model(
+            model,
+            to_file=self.MODEL_DIR + model_name + '/model_plot.png',
+            show_shapes=True,
+            show_layer_names=True
+        )
+
         model_json = model.to_json()
         with open(self.MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
             json_file.write(model_json)
@@ -376,7 +470,6 @@ class Model:
         
 
     def predict(self, model, model_name, DIR):    
-
         
         while True:        
             print('\nDo you want to erase the current Data in Result folder?')     
@@ -428,8 +521,7 @@ class Model:
 
         len_files = len(predict_generator.filenames)
         predict = model.predict(predict_generator,steps = len_files)
-
-        predictedClassIndices = predict > 0.5
+        
         print("Model accuracy: ", np.max(tf.nn.sigmoid(predict)))
     
         with open(self.MODEL_DIR + model_name + '/predict_result.csv', mode='w') as data_file:
@@ -462,31 +554,19 @@ class Model:
                     
                     x += 1
 
-        Chart().assurance_chart(model_name)
-       
-
-            
-        '''          
-
-        y_true = np.array(len_files)
-        y_pred =  predict > 0.5
-
-        print(confusion_matrix(y_true, y_pred))
-
-        x_true = np.array([0] * 274 + [1] * 274)
-        x_pred =  predict < 0.5
-
-        print(confusion_matrix(x_true, x_pred))
+        Chart().assurance_1_chart(model_name)
+        Chart().assurance_2_chart(model_name)
+        Chart().assurance_3_chart(model_name)            
+        Chart().precision_chart()
            
-        '''
-        
+               
 
     def load_model(self, model_name):
         if os.path.isfile(self.MODEL_DIR + model_name + '/' + model_name +  '.h5') is True:
             json_file = open(self.MODEL_DIR + model_name + '/' + model_name + '.json', 'r')
             loaded_model_json = json_file.read()
             json_file.close()
-            loaded_model = model_from_json(loaded_model_json)
+            loaded_model = model_from_json(loaded_model_json, custom_objects={'leaky_relu': tf.nn.leaky_relu})
             # load weights into new model
             loaded_model.load_weights(self.MODEL_DIR + model_name + '/' + model_name + '.h5')
             

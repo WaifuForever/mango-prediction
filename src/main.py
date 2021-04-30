@@ -34,50 +34,60 @@ MODEL_DIR = "./Models/"
 width = 512
 height = 512
 default_epochs = 3
+batch_size = 2
 current_model = None
   
        
-     
-def evaluate_perfomance(model_name):
-    
-  hits_g = 0
-  hits_r = 0
-  total_data = 0
-  for filename in enumerate(os.listdir(RESULT_DIR + '/Good/')):
-    total_data += 1
-    if filename[1].startswith('G'):
-      hits_g+=1 
-
-
-  for filename in enumerate(os.listdir(RESULT_DIR + '/Rotten/')): 
-    total_data += 1   
-    if filename[1].startswith('R'):
-      hits_r+=1   
-  
-  Chart().precision_chart(model_name, [hits_g, hits_r, total_data])
-
-
-
-
-
 def track_data():
-  for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
-    if not filename[1].startswith('G - '):
-      src = TRAINING_DIR + '/Good/' + filename[1]    
-      dst = TRAINING_DIR + '/Good/G - '+ filename[1]
-      os.rename(src, dst)
+  with open(self.TRAINING_DIR + '/validation_result.csv', mode='w') as data_file:
+    data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    headerList = ['filename', 'output']
+    data_writer.writerow(headerList)
+    for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
+      data_writer.writerow(filename, 0)
 
- 
-
-  for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
-    if not filename[1].startswith('R - '):
-      src = TRAINING_DIR + '/Rotten/' + filename[1]
-      dst =TRAINING_DIR + '/Rotten/R - '+ filename[1]
-      os.rename(src, dst)
+  
+    for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
+      data_writer.writerow(filename, 1)
    
   
    
   print("the data has been tracked")
+
+def run_rotine():
+  model = Model()
+
+  names = [
+    "LeNet-5",
+    "AlexNet",
+    "VGG16",
+    "relu-sigmoid[3-512]",
+    "relu-linear-sigmoid[2-128]",
+    "relu-sigmoid[4-2048]",
+    "sigmoid+BN[2+1/2-256]",
+    "sigmoid+BN[4-4096]",
+    "sigmoid+BN[2+1/2-512]"
+  ]
+
+  batch_size = [2, 4, 8, 16]
+  pool_size = [(1, 1), (3, 3), (5, 5), (7, 7)]
+  learning_rate = [0.01, 0.001, 0.0001, 0.00001]
+  DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
+  epochs = 2
+  for k in batch_size:
+      for x in pool_size:
+          for y in range(0, 9):
+              for z in learning_rate:
+                  m1 = model.create_model(y, x, z)
+                  m1 = model.train_model(m1, names[y], epochs, k)
+                  model.predict(m1, names[y], DIR)
+                  with open(self.MODEL_DIR + names[y] + '/info.csv', mode='w') as data_file:
+                    headerList = ['model_name', 'batch_size', 'pool_size', 'learning_rate']
+                    data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    data_writer.writerow(headerList)
+                    info = [names[y], k, x, z]
+                    data_writer.writerow(info)
+
 
 
 #still not working
@@ -115,8 +125,11 @@ def main():
               break
         
       if model_name != 'exit':
-
-        current_model = model.create_model(5, 1)
+        cnn = 7
+        op = 2
+        lr = 0.001
+        pool_size = (3,3)
+        current_model = model.create_model(cnn, pool_size, lr, op)
       
 
     elif option == 2:      
@@ -162,13 +175,13 @@ def main():
                   break
                 else:
                   epochs = int(epochs)
-                  current_model = model.train_model(current_model, model_name, epochs)
+                  current_model = model.train_model(current_model, model_name, epochs, batch_size)
                   break
                 
             except ValueError:
                 epochs = default_epochs
                 print("Number of generations set to %d" % default_epochs)
-                current_model = model.train_model(current_model, model_name, epochs)
+                current_model = model.train_model(current_model, model_name, epochs, batch_size)
                 break
 
       elif option == 2:
@@ -191,7 +204,7 @@ def main():
 
         model.predict(current_model, model_name, DIR) 
         
-        evaluate_perfomance(model_name)
+        
 
       elif option == 3:
           while True:        
@@ -213,7 +226,8 @@ def main():
               4: "_assurance_1",
               5: "_assurance_2",
               6: "_assurance_3",
-              7: "_precision",              
+              7: "_precision",
+              8: "_model_plot",              
             }
           
             if op == 1:
@@ -223,7 +237,7 @@ def main():
                 print("\n")
                 break;
             else:
-                Chart().display_chart(model_name, switcher[op])
+                Chart().display_chart(model_name, switcher[op], True)
                     
       elif option == 4:
         current_model = None
