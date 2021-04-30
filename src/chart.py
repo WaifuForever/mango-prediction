@@ -18,6 +18,8 @@ class Chart:
     def __init__(self):
        pass
 
+
+
     def _training_csv(self):
         with open(self.MODEL_DIR + model_name + '/training_result.csv', 'r') as read_obj:
             try:                               
@@ -99,7 +101,7 @@ class Chart:
         '''
 
 
-    def _predict_csv(self):
+    def _predict_csv(self, model_name):
         with open(self.MODEL_DIR + model_name + '/predict_result.csv', 'r') as read_obj:
             try:
                 col_list = ["assurance", "output"]                
@@ -118,7 +120,7 @@ class Chart:
 
 
     def assurance_1_chart(self, model_name):        
-                good, rotten = self._predict_csv()
+                good, rotten = self._predict_csv(model_name)
                 plt.style.use("fivethirtyeight")
                 ax = plt.subplot()
             
@@ -142,7 +144,7 @@ class Chart:
                
 
     def assurance_2_chart(self, model_name):
-        good, rotten = self._predict_csv()
+        good, rotten = self._predict_csv(model_name)
         plt.style.use("fivethirtyeight")
         ax = plt.subplot()
     
@@ -166,7 +168,7 @@ class Chart:
        
        
     def assurance_3_chart(self, model_name):
-        good, rotten = self._predict_csv()        
+        good, rotten = self._predict_csv(model_name)        
         plt.style.use("fivethirtyeight")        
         average_g = 0
         average_r = 0
@@ -176,9 +178,13 @@ class Chart:
 
         for y in rotten:
             average_r += y
-
-        average_g = float(average_g/len(good))
-        average_r = float(average_r/len(rotten))
+        
+        try:
+            average_g = float(average_g/len(good))
+            average_r = float(average_r/len(rotten))
+        except Exception as e:
+                print(e) 
+                average_r = 1
 
         
         dictlist = ["Good", "Rotten", "Average"]

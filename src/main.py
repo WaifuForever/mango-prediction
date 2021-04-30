@@ -7,6 +7,7 @@ import PIL
 
 import sys 
 import random
+import csv
 
 from tensorflow.keras.preprocessing.image import load_img, img_to_array, save_img
 from chart import Chart
@@ -39,16 +40,16 @@ current_model = None
   
        
 def track_data():
-  with open(self.TRAINING_DIR + '/validation_result.csv', mode='w') as data_file:
+  with open(TRAINING_DIR + '/validation_result.csv', mode='w') as data_file:
     data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     headerList = ['filename', 'output']
     data_writer.writerow(headerList)
     for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
-      data_writer.writerow(filename, 0)
+      data_writer.writerow([filename, 0])
 
   
     for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
-      data_writer.writerow(filename, 1)
+      data_writer.writerow([filename, 1])
    
   
    
@@ -69,6 +70,17 @@ def run_rotine():
     "sigmoid+BN[2+1/2-512]"
   ]
 
+  optimizers = [
+    " - RMSprop",
+    " - Adam",
+    " - SGD",
+    " - Adadelta",
+    " - Adagrad",
+    " - Adamax",
+    " - Nadam",
+    " - Ftrl",    
+  ]
+
   batch_size = [2, 4, 8, 16]
   pool_size = [(1, 1), (3, 3), (5, 5), (7, 7)]
   learning_rate = [0.01, 0.001, 0.0001, 0.00001]
@@ -78,14 +90,15 @@ def run_rotine():
       for x in pool_size:
           for y in range(0, 9):
               for z in learning_rate:
-                  m1 = model.create_model(y, x, z)
+                for opt in range (0, 8):
+                  m1 = model.create_model(y, x, z, opt)
                   m1 = model.train_model(m1, names[y], epochs, k)
-                  model.predict(m1, names[y], DIR)
+                  model.predict(m1, names[y], DIR, False)
                   with open(self.MODEL_DIR + names[y] + '/info.csv', mode='w') as data_file:
                     headerList = ['model_name', 'batch_size', 'pool_size', 'learning_rate']
                     data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                     data_writer.writerow(headerList)
-                    info = [names[y], k, x, z]
+                    info = [names[y] + optimizers[opt], k, x, z]
                     data_writer.writerow(info)
 
 
@@ -202,7 +215,7 @@ def main():
           else:
               print("Invalid option!!\n")
 
-        model.predict(current_model, model_name, DIR) 
+        model.predict(current_model, model_name, DIR, True) 
         
         
 
@@ -210,30 +223,32 @@ def main():
           while True:        
             print('\nChoose the Data to be shown')     
             print("Select a Option:")
-            print("1 - Summary")           
-            print("2 - Training_1")
-            print("3 - Training_2")
-            print("4 - Assurance_1")
-            print("5 - Assurance_2")
-            print("6 - Assurance_3")                       
-            print("7 - Precision")
-            print("8 - Return to previous menu")
+            print("1 - Summary")
+            print("2 - Architecture")           
+            print("3 - Training_1")
+            print("4 - Training_2")
+            print("5 - Assurance_1")
+            print("6 - Assurance_2")
+            print("7 - Assurance_3")                       
+            print("8 - Precision")
+            print("9 - Return to previous menu")
             op = int(input())
 
             switcher = {
-              2: "_training_1",
-              3: "_training_2",
-              4: "_assurance_1",
-              5: "_assurance_2",
-              6: "_assurance_3",
-              7: "_precision",
-              8: "_model_plot",              
+              2: "_model_plot",
+              3: "_training_1",
+              4: "_training_2",
+              5: "_assurance_1",
+              6: "_assurance_2",
+              7: "_assurance_3",
+              8: "_precision",
+                            
             }
           
             if op == 1:
                 current_model.summary() 
             
-            elif op == 8:
+            elif op == 9:
                 print("\n")
                 break;
             else:
@@ -251,4 +266,5 @@ def main():
 
 print(tf.__version__)
 #use_GPU()
-main()
+run_rotine()
+#main()

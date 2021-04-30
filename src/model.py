@@ -33,18 +33,17 @@ class Model:
         pass
 
 
-    def _get_optimizer(self, op, learning_rate):
-                
+    def _get_optimizer(self, op, learning_rate):                
         # map the inputs to the function blocks
         return {
             0 : tf.keras.optimizers.RMSprop(learning_rate=learning_rate),
             1 : tf.keras.optimizers.Adam(learning_rate=learning_rate),
             2 : tf.keras.optimizers.SGD(learning_rate=learning_rate),
-            3 : None,
-            4 : None,
-            5 : None,
-            6 : None,
-            7 : None,
+            3 : tf.keras.optimizers.Adadelta(learning_rate=learning_rate),
+            4 : tf.keras.optimizers.Adagrad(learning_rate=learning_rate),
+            5 : tf.keras.optimizers.Adamax(learning_rate=learning_rate),
+            6 : tf.keras.optimizers.Nadam(learning_rate=learning_rate),
+            7 : tf.keras.optimizers.Ftrl(learning_rate=learning_rate),
         }.get(op, None) 
       
   
@@ -453,7 +452,7 @@ class Model:
             print ("Successfully created the directory for %s " % model_name)
         keras.utils.plot_model(
             model,
-            to_file=self.MODEL_DIR + model_name + '/model_plot.png',
+            to_file=self.MODEL_DIR + model_name + '/' + model_name + '_model_plot.png',
             show_shapes=True,
             show_layer_names=True
         )
@@ -468,15 +467,19 @@ class Model:
         if os.path.isfile(self.MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
             model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
-
-    def predict(self, model, model_name, DIR):    
+    
+    def predict(self, model, model_name, DIR, questions):    
         
         while True:        
+           
             print('\nDo you want to erase the current Data in Result folder?')     
             print("Select a Option:")
             print("1 - Yes ")
             print("2 - No")
-            op = int(input())
+            if questions:
+                op = int(input())
+            else:
+                op = 1    
             if op == 1:
             
                 for path in [self.RESULT_DIR + '/Good', self.RESULT_DIR + '/Rotten']:
