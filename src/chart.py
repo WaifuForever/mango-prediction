@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatch
 import pandas as pd
-
+from sklearn.metrics import confusion_matrix
 
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
@@ -57,14 +57,16 @@ class Chart:
         
 
     def precision_chart(self):
+        
+        TRAINING_DIR = "./Data/Training"
         try:
-            with open(self.TRAINING_DIR + '/validation_result.csv', mode='w') as val_file:
-                with open(self.MODEL_DIR + self.model_name + '/predict_result.csv', 'r') as pred_file:
+            with open(TRAINING_DIR + '/validation_result.csv') as val_file:
+                with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
 
                     col_list = ["filename", "output"]                
 
                     pred_data = pd.read_csv(pred_file, usecols=col_list)
-                    val_data = pd.read_csv(data_file, usecols=col_list)                             
+                    val_data = pd.read_csv(val_file, usecols=col_list)                             
 
                 
                     y_pred = pred_data.values.tolist()
@@ -72,10 +74,11 @@ class Chart:
                 
                     
 
+
                     print(confusion_matrix(y_true, y_pred))
-        except ValueError as e:
+        
+        except Exception as e:
             print(e) 
-            return None, None
                    
         '''
         plt.style.use("fivethirtyeight")

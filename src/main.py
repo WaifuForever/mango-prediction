@@ -21,7 +21,6 @@ from tensorflow.python.client import device_lib
 
 
 
-
 TRAINING_DIR = "./Data/Training"
 VALIDATION_DIR = "./Data/Validation"
 PREDICTION_DIR = "./Data/Prediction"
@@ -45,11 +44,11 @@ def track_data():
     headerList = ['filename', 'output']
     data_writer.writerow(headerList)
     for filename in enumerate(os.listdir(TRAINING_DIR + '/Good/')):
-      data_writer.writerow([filename, 0])
+      data_writer.writerow([filename[1], 0])
 
   
     for filename in enumerate(os.listdir(TRAINING_DIR + '/Rotten/')):
-      data_writer.writerow([filename, 1])
+      data_writer.writerow([filename[1], 1])
    
   
    
@@ -85,7 +84,7 @@ def run_rotine():
   pool_size = [(1, 1), (3, 3), (5, 5), (7, 7)]
   learning_rate = [0.01, 0.001, 0.0001, 0.00001]
   DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
-  epochs = 2
+  epochs = 200
   for k in batch_size:
       for x in pool_size:
           for y in range(0, 9):
