@@ -228,14 +228,14 @@ class Chart:
                                 
         except Exception as e:
             print(e)
-            print("The file %s could not be found\n" % (model_name + chart_name))
-            exec("""{chart_name}_chart({model})""".format(chart_name=chart_name, model=model_name))
+            print("The file %s could not be found\n" % (model_name + chart_name))           
             try:
+                exec("""{chart_name}_chart({model})""".format(chart_name=chart_name, model=model_name))
                 im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + chart_name + '.png')
                 if show_image:      
                     im.show()
                                     
             except Exception as e:
                 print(e)
-                print("The file %s could not be found\n" % (model_name + chart_name))
+                print("The file %s could not be generated\n" % (model_name + chart_name))
                 exec("""{chart_name}_chart({model})""".format(chart_name=chart_name, model=model_name))

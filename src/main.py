@@ -92,7 +92,7 @@ def run_rotine():
               for z in learning_rate:
                 for opt in range (0, 8):
                   m1 = model.create_model(y, x, z, opt)
-                  m1 = model.train_model(m1, names[y], epochs, k)
+                  m1 = model.train_model(m1, names[y] + optimizers[opt], epochs, k)
                   model.predict(m1, names[y], DIR, False)
                   with open(self.MODEL_DIR + names[y] + '/info.csv', mode='w') as data_file:
                     headerList = ['model_name', 'batch_size', 'pool_size', 'learning_rate']
@@ -266,5 +266,5 @@ def main():
 
 print(tf.__version__)
 #use_GPU()
-run_rotine()
-#main()
+#run_rotine()
+main()

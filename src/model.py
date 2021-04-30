@@ -468,7 +468,7 @@ class Model:
             model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
     
-    def predict(self, model, model_name, DIR, questions):    
+    def predict(self, model, model_name, DIR, verbose):    
         
         while True:        
            
@@ -476,7 +476,7 @@ class Model:
             print("Select a Option:")
             print("1 - Yes ")
             print("2 - No")
-            if questions:
+            if verbose:
                 op = int(input())
             else:
                 op = 1    
@@ -560,7 +560,7 @@ class Model:
         Chart().assurance_1_chart(model_name)
         Chart().assurance_2_chart(model_name)
         Chart().assurance_3_chart(model_name)            
-        Chart().precision_chart()
+        Chart().precision_chart(model_name)
            
                
 
