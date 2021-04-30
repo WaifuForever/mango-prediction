@@ -15,13 +15,14 @@ import PIL
 class Chart:
    
     MODEL_DIR = "./Models/"
-    def __init__(self):
-       pass
+    def __init__(self, model_name):
+        self.model_name = model_name
+        pass
 
 
 
     def _training_csv(self):
-        with open(self.MODEL_DIR + model_name + '/training_result.csv', 'r') as read_obj:
+        with open(self.MODEL_DIR + self.model_name + '/training_result.csv', 'r') as read_obj:
             try:                               
                 data = pd.read_csv(read_obj)   
                 return data
@@ -31,7 +32,7 @@ class Chart:
                 return None
 
 
-    def training_1_chart(self, model_name):    
+    def training_1_chart(self):    
         data = self._training_csv()  
         epochs = range(len(data['acc']))
 
@@ -40,10 +41,10 @@ class Chart:
         plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='o', linewidth=2.0)
         plt.legend(loc='lower right')
         plt.title('Accuracy')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_training_1.png')        
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_1.png')        
 
 
-    def training_2_chart(self, model_name):    
+    def training_2_chart(self):    
         data = self._training_csv()  
         epochs = range(len(data['acc']))
         plt.style.use("fivethirtyeight")  
@@ -52,13 +53,13 @@ class Chart:
         plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='o', linewidth=2.0)
         plt.legend(loc='upper right')
         plt.title('Loss')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_training_2.png')        
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')        
         
 
-    def precision_chart(self, model_name):
+    def precision_chart(self):
         try:
             with open(self.TRAINING_DIR + '/validation_result.csv', mode='w') as val_file:
-                with open(self.MODEL_DIR + model_name + '/predict_result.csv', 'r') as pred_file:
+                with open(self.MODEL_DIR + self.model_name + '/predict_result.csv', 'r') as pred_file:
 
                     col_list = ["filename", "output"]                
 
@@ -96,13 +97,13 @@ class Chart:
         plt.title('Precision')
         plt.xticks(ticks=x_indexes, labels=x)
 
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_precision' +'.png')    
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_precision' +'.png')    
         plt.show()
         '''
 
 
-    def _predict_csv(self, model_name):
-        with open(self.MODEL_DIR + model_name + '/predict_result.csv', 'r') as read_obj:
+    def _predict_csv(self):
+        with open(self.MODEL_DIR + self.model_name + '/predict_result.csv', 'r') as read_obj:
             try:
                 col_list = ["assurance", "output"]                
                 data = pd.read_csv(read_obj, usecols=col_list)                             
@@ -119,8 +120,8 @@ class Chart:
                 return None, None
 
 
-    def assurance_1_chart(self, model_name):        
-                good, rotten = self._predict_csv(model_name)
+    def assurance_1_chart(self):        
+                good, rotten = self._predict_csv()
                 plt.style.use("fivethirtyeight")
                 ax = plt.subplot()
             
@@ -140,11 +141,11 @@ class Chart:
                 plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
                 plt.legend(loc='lower right')
                 plt.title('Good Assurance')  
-                plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_1.png')  
+                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')  
                
 
-    def assurance_2_chart(self, model_name):
-        good, rotten = self._predict_csv(model_name)
+    def assurance_2_chart(self):
+        good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
         ax = plt.subplot()
     
@@ -164,11 +165,11 @@ class Chart:
         plt.plot(range(len(rotten)), rotten, label='Assurance', linewidth=1.0)
         plt.legend(loc='lower right')
         plt.title('Rotten Assurance')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name +'_assurance_2.png')
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_2.png')
        
        
-    def assurance_3_chart(self, model_name):
-        good, rotten = self._predict_csv(model_name)        
+    def assurance_3_chart(self):
+        good, rotten = self._predict_csv()        
         plt.style.use("fivethirtyeight")        
         average_g = 0
         average_r = 0
@@ -217,25 +218,26 @@ class Chart:
         plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
         plt.title('Assurance Average')
-        plt.savefig(self.MODEL_DIR + model_name + '/'+ model_name + '_assurance_3' +'.png')    
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_assurance_3' +'.png')    
             
+    
 
-    def display_chart(self, model_name, chart_name, show_image):
+    def display_chart(self, chart_name, show_image):
         try:
-            im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + chart_name + '.png')
+            im = PIL.Image.open(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_' + chart_name + '.png')
             if show_image:     
                 im.show()
                                 
         except Exception as e:
             print(e)
-            print("The file %s could not be found\n" % (model_name + chart_name))           
+            print("The file %s could not be found\n" % (self.model_name + '_' + chart_name))           
             try:
-                exec("""{chart_name}_chart({model})""".format(chart_name=chart_name, model=model_name))
-                im = PIL.Image.open(self.MODEL_DIR + model_name + '/'+ model_name + chart_name + '.png')
+                exec("""self.{chart_name}_chart()""".format(chart_name=chart_name))
+                im = PIL.Image.open(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_' + chart_name + '.png')
                 if show_image:      
                     im.show()
                                     
             except Exception as e:
                 print(e)
-                print("The file %s could not be generated\n" % (model_name + chart_name))
-                exec("""{chart_name}_chart({model})""".format(chart_name=chart_name, model=model_name))
+                print("The file %s could not be generated\n" % (self.model_name + '_' + chart_name))
+                

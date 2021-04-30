@@ -235,13 +235,13 @@ def main():
             op = int(input())
 
             switcher = {
-              2: "_model_plot",
-              3: "_training_1",
-              4: "_training_2",
-              5: "_assurance_1",
-              6: "_assurance_2",
-              7: "_assurance_3",
-              8: "_precision",
+              2: "model_plot",
+              3: "training_1",
+              4: "training_2",
+              5: "assurance_1",
+              6: "assurance_2",
+              7: "assurance_3",
+              8: "precision",
                             
             }
           
@@ -252,7 +252,7 @@ def main():
                 print("\n")
                 break;
             else:
-                Chart().display_chart(model_name, switcher[op], True)
+                Chart(model_name).display_chart(switcher[op], True)
                     
       elif option == 4:
         current_model = None

@@ -557,10 +557,11 @@ class Model:
                     
                     x += 1
 
-        Chart().assurance_1_chart(model_name)
-        Chart().assurance_2_chart(model_name)
-        Chart().assurance_3_chart(model_name)            
-        Chart().precision_chart(model_name)
+        chart = Chart(model_name)
+        chart.assurance_1_chart()
+        chart.assurance_2_chart()
+        chart.assurance_3_chart()            
+        chart.precision_chart()
            
                
 
