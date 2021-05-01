@@ -41,7 +41,8 @@ class Chart:
         plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='o', linewidth=2.0)
         plt.legend(loc='lower right')
         plt.title('Accuracy')
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_1.png')        
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_1.png')   
+        plt.clf()     
 
 
     def training_2_chart(self):    
@@ -53,7 +54,8 @@ class Chart:
         plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='o', linewidth=2.0)
         plt.legend(loc='upper right')
         plt.title('Loss')
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')        
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')  
+        plt.clf()      
         
 
     def precision_chart(self):
@@ -71,11 +73,19 @@ class Chart:
                 
                     y_pred = pred_data.values.tolist()
                     y_true = val_data.values.tolist()
-                
-                    
 
+                    result = []
 
-                    print(confusion_matrix(y_true, y_pred))
+                    for x in y_pred:
+                        for y in y_predict:
+                            if x[0] == y[0]:
+                                result.append(x[1])
+
+                    validation = []
+                    for y in y_true:
+                        validation.append(y[1])
+
+                    print(confusion_matrix(result, validation))
         
         except Exception as e:
             print(e) 
@@ -116,6 +126,7 @@ class Chart:
                
                 good = good.values.tolist()
                 rotten = rotten.values.tolist()
+               
                 return good, rotten
 
             except ValueError as e:
@@ -144,14 +155,15 @@ class Chart:
                 plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
                 plt.legend(loc='lower right')
                 plt.title('Good Assurance')  
-                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')  
+                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')
+                plt.clf()
                
 
     def assurance_2_chart(self):
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
         ax = plt.subplot()
-    
+        print(rotten)
         # these are matplotlib.patch.Patch properties
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
@@ -169,6 +181,7 @@ class Chart:
         plt.legend(loc='lower right')
         plt.title('Rotten Assurance')
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_2.png')
+        plt.clf()
        
        
     def assurance_3_chart(self):
@@ -188,7 +201,7 @@ class Chart:
             average_r = float(average_r/len(rotten))
         except Exception as e:
                 print(e) 
-                average_r = 1
+                average_r = 0
 
         
         dictlist = ["Good", "Rotten", "Average"]
@@ -221,7 +234,8 @@ class Chart:
         plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
         plt.title('Assurance Average')
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_assurance_3' +'.png')    
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_assurance_3' +'.png')
+        plt.clf() 
             
     
 
@@ -230,6 +244,7 @@ class Chart:
             im = PIL.Image.open(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_' + chart_name + '.png')
             if show_image:     
                 im.show()
+                plt.clf()
                                 
         except Exception as e:
             print(e)
@@ -239,6 +254,7 @@ class Chart:
                 im = PIL.Image.open(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_' + chart_name + '.png')
                 if show_image:      
                     im.show()
+                    plt.clf()
                                     
             except Exception as e:
                 print(e)

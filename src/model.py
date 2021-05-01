@@ -284,7 +284,7 @@ class Model:
                 layers.Dense(1, activation='sigmoid'),
                 
                 ]),
-            #sigmoid+BN[4-4096]
+            #sigmoid+BN[4-4096] broken
             7 : Sequential([     
                 layers.Conv2D(32, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
                 layers.MaxPooling2D(2,2),                
@@ -305,8 +305,7 @@ class Model:
                 layers.MaxPooling2D(2,2),                
                 layers.Conv2D(4096, pool_size, activation="sigmoid", padding="same"),
                 layers.MaxPooling2D(2,2),                             
-                layers.Dropout(0.2),
-                layers.BatchNormalization(),                
+                layers.Dropout(0.2),                                
 
                 layers.Flatten(),   
                 layers.Dense(4096, activation="sigmoid"),

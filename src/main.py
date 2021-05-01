@@ -139,7 +139,7 @@ def main():
       if model_name != 'exit':
         cnn = 7
         op = 2
-        lr = 0.001
+        lr = 0.0001
         pool_size = (3,3)
         current_model = model.create_model(cnn, pool_size, lr, op)
       
