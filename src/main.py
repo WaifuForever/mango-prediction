@@ -229,7 +229,7 @@ def main():
             print("5 - Assurance_1")
             print("6 - Assurance_2")
             print("7 - Assurance_3")                       
-            print("8 - Precision")
+            print("8 - Confusion Matrix")
             print("9 - Return to previous menu")
             op = int(input())
 
@@ -240,7 +240,7 @@ def main():
               5: "assurance_1",
               6: "assurance_2",
               7: "assurance_3",
-              8: "precision",
+              8: "confusion_matrix",
                             
             }
           

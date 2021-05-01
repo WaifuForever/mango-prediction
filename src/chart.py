@@ -4,8 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatch
 import pandas as pd
-from sklearn.metrics import confusion_matrix
+import itertools
 
+from sklearn.metrics import confusion_matrix
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
@@ -58,61 +59,63 @@ class Chart:
         plt.clf()      
         
 
-    def precision_chart(self):
+    def confusion_matrix_chart(self):
         
         TRAINING_DIR = "./Data/Training"
-        try:
-            with open(TRAINING_DIR + '/validation_result.csv') as val_file:
-                with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
+       
+        with open(TRAINING_DIR + '/validation_result.csv') as val_file:
+            with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
 
-                    col_list = ["filename", "output"]                
+                col_list = ["filename", "output"]                
 
-                    pred_data = pd.read_csv(pred_file, usecols=col_list)
-                    val_data = pd.read_csv(val_file, usecols=col_list)                             
+                pred_data = pd.read_csv(pred_file, usecols=col_list)
+                val_data = pd.read_csv(val_file, usecols=col_list)                             
 
+            
+                y_pred = pred_data.values.tolist()
+                y_val = val_data.values.tolist()
+
+                result = []
+
+                for x in y_pred:                   
+                    result.append(x[1])
+
+                validation = []
+                for y in y_val:
+                    validation.append(y[1])
+
+                cm = confusion_matrix(validation, result)
                 
-                    y_pred = pred_data.values.tolist()
-                    y_true = val_data.values.tolist()
+                classes = ["Good", 'Rotten']
+                normalize = False
 
-                    result = []
+                plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+                plt.title("Confused Matrix")
+                plt.colorbar()
+                tick_marks = np.arange(len(classes))
+                plt.xticks(tick_marks, classes, rotation=45)
+                plt.yticks(tick_marks, classes)
 
-                    for x in y_pred:
-                        for y in y_predict:
-                            if x[0] == y[0]:
-                                result.append(x[1])
+                if normalize:
+                    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+                    print("Normalized confusion matrix")
+                else:
+                    print('Confusion matrix, without normalization')
 
-                    validation = []
-                    for y in y_true:
-                        validation.append(y[1])
+              
+                thresh = cm.max() / 2.
+                for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                    plt.text(j, i, cm[i, j],
+                        horizontalalignment="center",
+                        color="white" if cm[i, j] > thresh else "black")
 
-                    print(confusion_matrix(result, validation))
-        
-        except Exception as e:
-            print(e) 
-                   
-        '''
-        plt.style.use("fivethirtyeight")
+                plt.tight_layout()
+                plt.ylabel('True label')
+                plt.xlabel('Predicted label')
+                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix.png')  
 
-        x=["Good", "Rotten", "Average"]      
-        width=0.25
-
-        x_indexes = np.arange(len(x))
-        
-        y_indexes = [
-            scores[0] * 100/scores[2],
-            scores[1] * 100/scores[2],
-            (scores[0] * 100/scores[2] + scores[1] * 100/scores[2])/2
-        ]
-
-        plt.bar(x_indexes, y_indexes, width=width)
-                
-        plt.legend(loc='lower right')
-        plt.title('Precision')
-        plt.xticks(ticks=x_indexes, labels=x)
-
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_precision' +'.png')    
-        plt.show()
-        '''
+                    
+      
 
 
     def _predict_csv(self):
