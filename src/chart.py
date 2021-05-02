@@ -21,6 +21,22 @@ class Chart:
         pass
 
 
+    def _validation_csv(self):
+
+        TRAINING_DIR = "./Data/Training"
+       
+        with open(TRAINING_DIR + '/validation_result.csv') as val_file:
+            with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
+
+                col_list = ["filename", "output"]                
+
+                pred_data = pd.read_csv(pred_file, usecols=col_list)
+                val_data = pd.read_csv(val_file, usecols=col_list)                             
+
+            
+                y_pred = pred_data.values.tolist()
+                y_val = val_data.values.tolist()
+                return y_pred, y_val
 
     def _training_csv(self):
         with open(self.MODEL_DIR + self.model_name + '/training_result.csv', 'r') as read_obj:
@@ -31,6 +47,24 @@ class Chart:
             except ValueError as e:
                 print(e) 
                 return None
+
+    def _predict_csv(self):
+        with open(self.MODEL_DIR + self.model_name + '/predict_result.csv', 'r') as read_obj:
+            try:
+                col_list = ["assurance", "output"]                
+                data = pd.read_csv(read_obj, usecols=col_list)                             
+
+                good = data[data['output'] == 0]['assurance']      
+                rotten = data[data['output'] == 1]['assurance']
+                
+                good = good.values.tolist()
+                rotten = rotten.values.tolist()
+                
+                return good, rotten
+
+            except ValueError as e:
+                print(e) 
+                return None, None
 
 
     def training_1_chart(self):    
@@ -59,81 +93,51 @@ class Chart:
         plt.clf()      
 
 
-    def _validation_csv(self):
-
-        TRAINING_DIR = "./Data/Training"
+    def confusion_matrix_1_chart(self):        
+        y_pred, y_val = self._validation_csv()
        
-        with open(TRAINING_DIR + '/validation_result.csv') as val_file:
-            with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
+        result = []
 
-                col_list = ["filename", "output"]                
+        for x in y_pred:                   
+            result.append(x[1])
 
-                pred_data = pd.read_csv(pred_file, usecols=col_list)
-                val_data = pd.read_csv(val_file, usecols=col_list)                             
+        validation = []
+        for y in y_val:
+            validation.append(y[1])
 
-            
-                y_pred = pred_data.values.tolist()
-                y_val = val_data.values.tolist()
-                return y_pred, y_val
-
-    def confusion_matrix_1_chart(self):
+        cm = confusion_matrix(validation, result)
         
-        TRAINING_DIR = "./Data/Training"
-       
-        with open(TRAINING_DIR + '/validation_result.csv') as val_file:
-            with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
+        classes = ["Good", 'Rotten']
+        normalize = False
 
-                col_list = ["filename", "output"]                
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title("Confused Matrix")
+        plt.colorbar()
+        tick_marks = np.arange(len(classes))
+        plt.xticks(tick_marks, classes, rotation=45)
+        plt.yticks(tick_marks, classes)
 
-                pred_data = pd.read_csv(pred_file, usecols=col_list)
-                val_data = pd.read_csv(val_file, usecols=col_list)                             
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            print("Normalized confusion matrix")
+        else:
+            print('Confusion matrix, without normalization')
 
-            
-                y_pred = pred_data.values.tolist()
-                y_val = val_data.values.tolist()
+        
+        thresh = cm.max() / 2.
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            plt.text(j, i, cm[i, j],
+                horizontalalignment="center",
+                color="white" if cm[i, j] > thresh else "black")
 
-                result = []
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_1.png')  
+        plt.clf()   
 
-                for x in y_pred:                   
-                    result.append(x[1])
 
-                validation = []
-                for y in y_val:
-                    validation.append(y[1])
-
-                cm = confusion_matrix(validation, result)
-                
-                classes = ["Good", 'Rotten']
-                normalize = False
-
-                plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-                plt.title("Confused Matrix")
-                plt.colorbar()
-                tick_marks = np.arange(len(classes))
-                plt.xticks(tick_marks, classes, rotation=45)
-                plt.yticks(tick_marks, classes)
-
-                if normalize:
-                    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-                    print("Normalized confusion matrix")
-                else:
-                    print('Confusion matrix, without normalization')
-
-              
-                thresh = cm.max() / 2.
-                for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-                    plt.text(j, i, cm[i, j],
-                        horizontalalignment="center",
-                        color="white" if cm[i, j] > thresh else "black")
-
-                plt.tight_layout()
-                plt.ylabel('True label')
-                plt.xlabel('Predicted label')
-                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_1.png')  
-                plt.clf()   
-                    
     def confusion_matrix_2_chart(self):
-
         y_pred, y_val = self._validation_csv()
 
         hits_g = hits_r = total_data = total_good = total_rotten = 0
@@ -177,25 +181,6 @@ class Chart:
 
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_2.png')  
         plt.clf()   
-
-
-    def _predict_csv(self):
-        with open(self.MODEL_DIR + self.model_name + '/predict_result.csv', 'r') as read_obj:
-            try:
-                col_list = ["assurance", "output"]                
-                data = pd.read_csv(read_obj, usecols=col_list)                             
-
-                good = data[data['output'] == 0]['assurance']      
-                rotten = data[data['output'] == 1]['assurance']
-               
-                good = good.values.tolist()
-                rotten = rotten.values.tolist()
-               
-                return good, rotten
-
-            except ValueError as e:
-                print(e) 
-                return None, None
 
 
     def assurance_1_chart(self):        
@@ -302,7 +287,6 @@ class Chart:
         plt.clf() 
             
     
-
     def display_chart(self, chart_name, show_image):
         try:
             im = PIL.Image.open(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_' + chart_name + '.png')
