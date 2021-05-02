@@ -362,8 +362,7 @@ class Model:
         
     def train_model(self, model, model_name, epochs, batch_size):  
         
-        DIR = pathlib.Path(self.TRAINING_DIR)
-        #Data().resize_images(self.width, self.height)
+        DIR = pathlib.Path(self.TRAINING_DIR)        
         
         gen = ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
             height_shift_range=0.05, rescale=1./255, brightness_range=(0.3, 0.7),
@@ -403,7 +402,7 @@ class Model:
         reduce_lr=tf.keras.callbacks.ReduceLROnPlateau(
             monitor="loss",
             factor=0.5,
-            patience=5,
+            patience=6,
             verbose=1
         )
         '''e_stop=tf.keras.callbacks.EarlyStopping(
