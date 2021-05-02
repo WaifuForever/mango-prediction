@@ -284,24 +284,32 @@ class Model:
             #sigmoid+BN[4-4096] broken
             7 : Sequential([     
                 layers.Conv2D(32, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
-                layers.MaxPooling2D(2,2),                
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),               
                 layers.Conv2D(64, pool_size, activation='sigmoid', padding="same"),
                 layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
                 
                 layers.Conv2D(128, pool_size, activation="sigmoid", padding="same"),
-                layers.MaxPooling2D(2,2),                
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),             
                 layers.Conv2D(256, pool_size, activation="sigmoid", padding="same"),
                 layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),
 
                 layers.Conv2D(512, pool_size, activation="sigmoid", padding="same"),
-                layers.MaxPooling2D(2,2),                
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),                
                 layers.Conv2D(1024, pool_size, activation='sigmoid', padding="same"),
-                layers.MaxPooling2D(2,2),            
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),            
 
                 layers.Conv2D(2048, pool_size, activation="sigmoid", padding="same"),
-                layers.MaxPooling2D(2,2),                
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),                
                 layers.Conv2D(4096, pool_size, activation="sigmoid", padding="same"),
-                layers.MaxPooling2D(2,2),                             
+                layers.MaxPooling2D(2,2),
+                layers.BatchNormalization(),                             
                 layers.Dropout(0.2),                                
 
                 layers.Flatten(),   
