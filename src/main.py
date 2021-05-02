@@ -34,7 +34,7 @@ MODEL_DIR = "./Models/"
 width = 512
 height = 512
 default_epochs = 3
-batch_size = 2
+batch_size = 4
 current_model = None
   
        
@@ -137,9 +137,9 @@ def main():
               break
         
       if model_name != 'exit':
-        cnn = 7
+        cnn = 6
         op = 2
-        lr = 0.0001
+        lr = 0.01
         pool_size = (3,3)
         current_model = model.create_model(cnn, pool_size, lr, op)
       
@@ -229,8 +229,9 @@ def main():
             print("5 - Assurance_1")
             print("6 - Assurance_2")
             print("7 - Assurance_3")                       
-            print("8 - Confusion Matrix")
-            print("9 - Return to previous menu")
+            print("8 - Confusion Matrix_1")
+            print("9 - Confusion Matrix_2")
+            print("0 - Return to previous menu")
             op = int(input())
 
             switcher = {
@@ -240,14 +241,15 @@ def main():
               5: "assurance_1",
               6: "assurance_2",
               7: "assurance_3",
-              8: "confusion_matrix",
+              8: "confusion_matrix_1",
+              9: "confusion_matrix_2"
                             
             }
           
             if op == 1:
                 current_model.summary() 
             
-            elif op == 9:
+            elif op == 0:
                 print("\n")
                 break;
             else:

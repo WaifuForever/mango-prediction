@@ -57,9 +57,26 @@ class Chart:
         plt.title('Loss')
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')  
         plt.clf()      
-        
 
-    def confusion_matrix_chart(self):
+
+    def _validation_csv(self):
+
+        TRAINING_DIR = "./Data/Training"
+       
+        with open(TRAINING_DIR + '/validation_result.csv') as val_file:
+            with open(self.MODEL_DIR + self.model_name + '/predict_result.csv') as pred_file:
+
+                col_list = ["filename", "output"]                
+
+                pred_data = pd.read_csv(pred_file, usecols=col_list)
+                val_data = pd.read_csv(val_file, usecols=col_list)                             
+
+            
+                y_pred = pred_data.values.tolist()
+                y_val = val_data.values.tolist()
+                return y_pred, y_val
+
+    def confusion_matrix_1_chart(self):
         
         TRAINING_DIR = "./Data/Training"
        
@@ -112,10 +129,54 @@ class Chart:
                 plt.tight_layout()
                 plt.ylabel('True label')
                 plt.xlabel('Predicted label')
-                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix.png')  
-
+                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_1.png')  
+                plt.clf()   
                     
-      
+    def confusion_matrix_2_chart(self):
+
+        y_pred, y_val = self._validation_csv()
+
+        hits_g = hits_r = total_data = total_good = total_rotten = 0
+        for filename in y_pred:
+            total_data += 1
+            for val_name in y_val:                
+                if filename[0] == val_name[0]:
+                    if filename[1] == val_name[1]:
+                        if val_name[1] == 0:
+                            hits_g+=1                            
+                        else:
+                            hits_r+=1
+                
+
+        for val_name in y_val:
+            if val_name[1] == 0:
+                total_good+=1
+            else:
+                total_rotten+=1
+
+
+        plt.style.use("fivethirtyeight")
+
+        x=["Good", "Rotten", "Average"]      
+        width=0.25
+
+        x_indexes = np.arange(len(x))
+            
+
+        y_indexes = [
+            hits_g * 100/total_good,
+            hits_r * 100/total_rotten,
+            (hits_g * 100/total_good + hits_r * 100/total_rotten)/2
+        ]
+
+        plt.bar(x_indexes, y_indexes, width=width)
+                
+        plt.legend(loc='lower right')
+        plt.title('Precision')
+        plt.xticks(ticks=x_indexes, labels=x)
+
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_2.png')  
+        plt.clf()   
 
 
     def _predict_csv(self):

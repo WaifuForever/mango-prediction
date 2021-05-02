@@ -7,5 +7,6 @@ Inside Data Folder there is a Result folder with 2 subfolders named Good and Rot
 To run Tensorflow, you need at least 3 GB of free RAM or a GPU
 
 do not use vgg16 with adam optimizer!
-do not put a Relu activaton fuction after a sigmoid in cnn architeture
+apparently using sigmoid as activation function requires a BatchNormalization() in each layer.
+do not put a Relu activation fuction after a sigmoid in cnn architeture
 Train_Generator no longer saves generated images into augmented folder, this part of the code is commented

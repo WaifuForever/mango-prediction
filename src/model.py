@@ -255,7 +255,7 @@ class Model:
                 layers.Dense(1, activation='sigmoid'),
                 
                 ]),
-            #sigmoid+BN[2+1/2-256] broken?
+            #sigmoid+BN[2+1/2-256] good results
             6 : Sequential([     
                 
                 layers.Conv2D(16, pool_size, activation="sigmoid", padding="same", input_shape=(self.height, self.width, 3)),
@@ -560,7 +560,7 @@ class Model:
         chart.assurance_1_chart()
         chart.assurance_2_chart()
         chart.assurance_3_chart()            
-        chart.precision_chart()
+        chart.confusion_matrix_chart()
            
                
 
