@@ -431,7 +431,7 @@ class Model:
 
         reduce_lr=tf.keras.callbacks.ReduceLROnPlateau(
             monitor="loss",
-            factor=0.5,
+            factor=0.4,
             patience=6,
             verbose=1
         )
@@ -563,9 +563,9 @@ class Model:
                     x += 1
 
         chart = Chart(model_name)
-        chart.assurance_1_chart()
-        chart.assurance_2_chart()
-        chart.assurance_3_chart()            
+        chart.confidence_1_chart()
+        chart.confidence_2_chart()
+        chart.confidence_3_chart()            
         chart.confusion_matrix_1_chart()
         chart.confusion_matrix_2_chart()
            
