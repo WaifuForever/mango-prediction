@@ -185,22 +185,8 @@ class Chart:
 
     def assurance_1_chart(self):        
         good, rotten = self._predict_csv()
-        plt.style.use("fivethirtyeight")
-        ax = plt.subplot()
-    
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,                    
-            bbox=props)
+        plt.style.use("fivethirtyeight")       
                     
-
         plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
         plt.legend(loc='lower right')
         plt.title('Good Assurance')  
@@ -211,20 +197,7 @@ class Chart:
     def assurance_2_chart(self):
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
-        ax = plt.subplot()       
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,            
-            bbox=props)
-
-
+       
         plt.plot(range(len(rotten)), rotten, label='Assurance', linewidth=1.0)
         plt.legend(loc='lower right')
         plt.title('Rotten Assurance')
@@ -264,21 +237,6 @@ class Chart:
         ]
         
 
-        ax = plt.subplot()
-    
-        # these are matplotlib.patch.Patch properties
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-        # place a text box in upper left in axes coords
-        ax.text(
-            0.78,
-            1.08,
-            "scale = [0-50]",
-            transform=ax.transAxes,
-            fontsize=14,
-            
-            bbox=props)
-            
         plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
         plt.title('Assurance Average')

@@ -25,8 +25,6 @@ class Model:
     MODEL_DIR = "./Models/"
     height, width = 400, 400
 
-    #model.py
-    #batch_size = 4
    
 
     def __init__(self):
@@ -45,8 +43,7 @@ class Model:
             6 : tf.keras.optimizers.Nadam(learning_rate=learning_rate),
             7 : tf.keras.optimizers.Ftrl(learning_rate=learning_rate),
         }.get(op, None) 
-      
-  
+        
     def _get_CNN(self, pool_size, op):
 
         return { 
@@ -344,6 +341,31 @@ class Model:
             
         }.get(op, None) 
 
+    def _save_model(self, model_name, model):
+        try:
+            os.mkdir(self.MODEL_DIR + model_name + '/')
+        except OSError:
+            print ("Creation of the directory for %s failed" % model_name)
+        else:
+            print ("Successfully created the directory for %s " % model_name)
+            
+        keras.utils.plot_model(
+            model,
+            to_file=self.MODEL_DIR + model_name + '/' + model_name + '_model_plot.png',
+            show_shapes=True,
+            show_layer_names=True
+        )
+
+        model_json = model.to_json()
+        with open(self.MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
+            json_file.write(model_json)
+        # serialize weights to HDF5
+        model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
+        print("Saved model to disk\n")
+
+        if os.path.isfile(self.MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
+            model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
+
 
     def create_model(self, cn, pool_size, lr, opt):
     
@@ -439,31 +461,6 @@ class Model:
         
                
         return model
-
-
-    def _save_model(self, model_name, model):
-        try:
-            os.mkdir(self.MODEL_DIR + model_name + '/')
-        except OSError:
-            print ("Creation of the directory for %s failed" % model_name)
-        else:
-            print ("Successfully created the directory for %s " % model_name)
-        keras.utils.plot_model(
-            model,
-            to_file=self.MODEL_DIR + model_name + '/' + model_name + '_model_plot.png',
-            show_shapes=True,
-            show_layer_names=True
-        )
-
-        model_json = model.to_json()
-        with open(self.MODEL_DIR + model_name + '/'+ model_name + ".json", "w") as json_file:
-            json_file.write(model_json)
-        # serialize weights to HDF5
-        model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
-        print("Saved model to disk\n")
-
-        if os.path.isfile(self.MODEL_DIR + model_name + '/'+ model_name + '.h5') is False:
-            model.save_weights(self.MODEL_DIR + model_name + '/'+ model_name + ".h5")
         
     
     def predict(self, model, model_name, DIR, verbose):    
@@ -545,15 +542,15 @@ class Model:
                             "This image ({filename}) most likely belongs to Good".format(filename = onlyfiles[x]),
                             "with a {:.1f}% percent confidence.".format(float(guessing + 0.5)*100)
                         )                      
-                        data_writer.writerow([onlyfiles[x], 0, float(predict[x]), float(guessing)])
+                        data_writer.writerow([onlyfiles[x], 0, float(predict[x]), float(guessing + 0.5)*100])
                     else:
-                        guessing = (predict[x] - 0.5)
+                        
                         copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
                         print(
                             "This image ({filename}) most likely belongs to Rotten".format(filename = onlyfiles[x]),
                             "with a {:.1f}% percent confidence.".format(float(predict[x])*100)
                         )                       
-                        data_writer.writerow([onlyfiles[x], 1, float(predict[x]), float(guessing)])
+                        data_writer.writerow([onlyfiles[x], 1, float(predict[x]), float(predict[x])*100])
                     
                     x += 1
 
@@ -564,8 +561,7 @@ class Model:
         chart.confusion_matrix_1_chart()
         chart.confusion_matrix_2_chart()
            
-               
-
+              
     def load_model(self, model_name):
         if os.path.isfile(self.MODEL_DIR + model_name + '/' + model_name +  '.h5') is True:
             json_file = open(self.MODEL_DIR + model_name + '/' + model_name + '.json', 'r')
