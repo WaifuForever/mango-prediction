@@ -184,35 +184,34 @@ class Chart:
 
 
     def assurance_1_chart(self):        
-                good, rotten = self._predict_csv()
-                plt.style.use("fivethirtyeight")
-                ax = plt.subplot()
-            
-                # these are matplotlib.patch.Patch properties
-                props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        good, rotten = self._predict_csv()
+        plt.style.use("fivethirtyeight")
+        ax = plt.subplot()
+    
+        # these are matplotlib.patch.Patch properties
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
-                # place a text box in upper left in axes coords
-                ax.text(
-                    0.78,
-                    1.08,
-                    "scale = [0-50]",
-                    transform=ax.transAxes,
-                    fontsize=14,                    
-                    bbox=props)
-                            
+        # place a text box in upper left in axes coords
+        ax.text(
+            0.78,
+            1.08,
+            "scale = [0-50]",
+            transform=ax.transAxes,
+            fontsize=14,                    
+            bbox=props)
+                    
 
-                plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
-                plt.legend(loc='lower right')
-                plt.title('Good Assurance')  
-                plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')
-                plt.clf()
+        plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
+        plt.legend(loc='lower right')
+        plt.title('Good Assurance')  
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')
+        plt.clf()
                
 
     def assurance_2_chart(self):
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
-        ax = plt.subplot()
-        print(rotten)
+        ax = plt.subplot()       
         # these are matplotlib.patch.Patch properties
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
