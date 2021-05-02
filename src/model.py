@@ -541,18 +541,20 @@ class Model:
                     if predict[x] <= 0.5:                        
                         copyfile(current_path, self.RESULT_DIR + '/Good/' + onlyfiles[x])
                         guessing = (0.5 - predict[x])
-                        #scores["Good"].append(guessing)
-                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
+                                               
+                        print(
+                            "This image ({filename}) most likely belongs to Good".format(filename = onlyfiles[x]),
+                            "with a {:.1f}% percent confidence.".format(float(guessing + 0.5)*100)
+                        )                      
                         data_writer.writerow([onlyfiles[x], 0, float(predict[x]), float(guessing)])
                     else:
                         guessing = (predict[x] - 0.5)
                         copyfile(current_path, self.RESULT_DIR + '/Rotten/' + onlyfiles[x])
-                        #scores["Rotten"].append(guessing)
-                        print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing)
+                        print(
+                            "This image ({filename}) most likely belongs to Rotten".format(filename = onlyfiles[x]),
+                            "with a {:.1f}% percent confidence.".format(float(predict[x])*100)
+                        )                       
                         data_writer.writerow([onlyfiles[x], 1, float(predict[x]), float(guessing)])
-
-                    
-                    #print(x, " ", onlyfiles[x], ":", predict[x], " - ", guessing )   
                     
                     x += 1
 
@@ -560,7 +562,8 @@ class Model:
         chart.assurance_1_chart()
         chart.assurance_2_chart()
         chart.assurance_3_chart()            
-        chart.confusion_matrix_chart()
+        chart.confusion_matrix_1_chart()
+        chart.confusion_matrix_2_chart()
            
                
 
