@@ -72,8 +72,8 @@ class Chart:
         epochs = range(len(data['acc']))
 
         plt.style.use("fivethirtyeight")        
-        plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='o', linewidth=2.0)
-        plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='o', linewidth=2.0)
+        plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='.', linewidth=1.5)
         plt.legend(loc='lower right')
         plt.title('Accuracy')
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_1.png')   
@@ -85,8 +85,8 @@ class Chart:
         epochs = range(len(data['acc']))
         plt.style.use("fivethirtyeight")  
 
-        plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='o', linewidth=2.0)
-        plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='o', linewidth=2.0)
+        plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='.', linewidth=1.5)
         plt.legend(loc='upper right')
         plt.title('Loss')
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')  
