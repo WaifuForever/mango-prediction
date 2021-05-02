@@ -183,29 +183,29 @@ class Chart:
         plt.clf()   
 
 
-    def assurance_1_chart(self):        
+    def confidence_1_chart(self):        
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")       
                     
-        plt.plot(range(len(good)), good, label='Assurance', linewidth=1.0)        
-        plt.legend(loc='lower right')
-        plt.title('Good Assurance')  
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_1.png')
+        plt.plot(range(len(good)), good, label='Confidence', linewidth=1.0)        
+        plt.legend(loc='upper right')
+        plt.title('Good Confidence')  
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confidence_1.png')
         plt.clf()
                
 
-    def assurance_2_chart(self):
+    def confidence_2_chart(self):
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
        
-        plt.plot(range(len(rotten)), rotten, label='Assurance', linewidth=1.0)
-        plt.legend(loc='lower right')
-        plt.title('Rotten Assurance')
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_assurance_2.png')
+        plt.plot(range(len(rotten)), rotten, label='Confidence', linewidth=1.0)
+        plt.legend(loc='upper right')
+        plt.title('Rotten Confidence')
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confidence_2.png')
         plt.clf()
        
        
-    def assurance_3_chart(self):
+    def confidence_3_chart(self):
         good, rotten = self._predict_csv()        
         plt.style.use("fivethirtyeight")        
         average_g = 0
@@ -239,8 +239,8 @@ class Chart:
 
         plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
-        plt.title('Assurance Average')
-        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_assurance_3' +'.png')
+        plt.title('Confidence Average')
+        plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_confidence_3' +'.png')
         plt.clf() 
             
     

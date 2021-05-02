@@ -226,9 +226,9 @@ def main():
             print("2 - Architecture")           
             print("3 - Training_1")
             print("4 - Training_2")
-            print("5 - Assurance_1")
-            print("6 - Assurance_2")
-            print("7 - Assurance_3")                       
+            print("5 - Confidence_1")
+            print("6 - Confidence_2")
+            print("7 - Confidence_3")                       
             print("8 - Confusion Matrix_1")
             print("9 - Confusion Matrix_2")
             print("0 - Return to previous menu")
@@ -238,9 +238,9 @@ def main():
               2: "model_plot",
               3: "training_1",
               4: "training_2",
-              5: "assurance_1",
-              6: "assurance_2",
-              7: "assurance_3",
+              5: "confidence_1",
+              6: "confidence_2",
+              7: "confidence_3",
               8: "confusion_matrix_1",
               9: "confusion_matrix_2"
                             
