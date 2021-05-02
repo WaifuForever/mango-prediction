@@ -9,7 +9,6 @@ import sys
 import random
 import csv
 
-from tensorflow.keras.preprocessing.image import load_img, img_to_array, save_img
 from chart import Chart
 from model import Model
 
@@ -30,7 +29,6 @@ MODEL_DIR = "./Models/"
 
 
 
-#data.py
 width = 512
 height = 512
 default_epochs = 3
@@ -99,7 +97,6 @@ def run_rotine():
                     data_writer.writerow(headerList)
                     info = [names[y] + optimizers[opt], k, x, z]
                     data_writer.writerow(info)
-
 
 
 #still not working
@@ -261,7 +258,6 @@ def main():
             
       else:
         print("Invalid option!!\n")
-
 
 
 
