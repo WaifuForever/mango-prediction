@@ -36,6 +36,13 @@ batch_size = 4
 current_model = None
   
        
+def input_int(mark): 
+  try:
+      num = int(mark)     
+      return num
+  except ValueError:      
+      return 0
+
 def track_data():
   with open(TRAINING_DIR + '/validation_result.csv', mode='w') as data_file:
     data_writer = csv.writer(data_file,delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -110,7 +117,7 @@ def use_GPU():
 def main():  
   
   model = Model()
-  model_name = ""
+  model_name = "exit"
   while True:
 
     print("\nTENSORFLOW IMAGE CLASSIFIER")
@@ -120,7 +127,8 @@ def main():
     print("3 - End Program")
     
 
-    option = int(input())
+    option = input_int(input())
+    
 
     if option == 1:
 
@@ -174,13 +182,13 @@ def main():
       print("3 - Show Data")
       print("4 - Main Menu.")
 
-      option = int(input())
+      option = input_int(input())
 
       if option == 1:
           while True:
             try:
-                epochs = input("Enter the number of generations: ")
-                if epochs == 'exit':
+                option = input_int(input("Enter the number of generations: "))                
+                if epochs == 0:
                   break
                 else:
                   epochs = int(epochs)
@@ -200,7 +208,7 @@ def main():
           print("Select a Option:")
           print("1 - From Training Folder ")
           print("2 - From Prediction Folder")
-          op = int(input())
+          op = input_int(input())
           if op == 1:                
               DIR = (TRAINING_DIR, [TRAINING_DIR + '/Good', TRAINING_DIR + '/Rotten'])
               track_data()
@@ -228,8 +236,8 @@ def main():
             print("7 - Confidence_3")                       
             print("8 - Confusion Matrix_1")
             print("9 - Confusion Matrix_2")
-            print("0 - Return to previous menu")
-            op = int(input())
+            print("10 - Return to previous menu")
+            op = input_int(input())
 
             switcher = {
               2: "model_plot",
@@ -246,7 +254,7 @@ def main():
             if op == 1:
                 current_model.summary() 
             
-            elif op == 0:
+            elif op == 10:
                 print("\n")
                 break;
             else:

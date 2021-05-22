@@ -480,7 +480,12 @@ class Model:
             print("1 - Yes ")
             print("2 - No")
             if verbose:
-                op = int(input())
+                try:
+                    op = input()   
+                    op = int(op)
+                except ValueError:      
+                    op = 1
+               
             else:
                 op = 1    
             if op == 1:
