@@ -16,6 +16,36 @@ import PIL
 class Chart:
    
     MODEL_DIR = "./Models/"
+
+    pt_br = ["Bom",
+             "Ruim",
+             "Média",
+             "Conjunto Ampliado",
+             "Conjunto não Ampliado",
+             "Precisão",
+             "Erro",
+             "Validação",
+             "Predição",
+             "Confiança",
+             "Matrix de confusão",
+             "Média de confiança"]
+
+    eng_us = ["Good",
+             "Rotten",
+             "Average",
+             "Dataset augmented",
+             "Dataset standart",
+             "Precision",
+             "Loss",
+             "True",
+             "Predicted",
+             "Confidence",
+             "Confusion Matrix",
+             "Confidence Average"]
+
+    language = pt_br
+
+
     def __init__(self, model_name):
         self.model_name = model_name
         pass
@@ -72,10 +102,10 @@ class Chart:
         epochs = range(len(data['acc']))
 
         plt.style.use("fivethirtyeight")        
-        plt.plot(epochs, np.array(data['acc']), label='Training Accuracy', marker='.', linewidth=1.5)
-        plt.plot(epochs, np.array(data['val_acc']), label='Validation Accuracy', marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['acc']), label=self.language[3], marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['val_acc']), label=self.language[4], marker='.', linewidth=1.5)
         plt.legend(loc='lower right')
-        plt.title('Accuracy')
+        plt.title(self.language[5])
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_1.png')   
         plt.clf()     
 
@@ -85,10 +115,10 @@ class Chart:
         epochs = range(len(data['acc']))
         plt.style.use("fivethirtyeight")  
 
-        plt.plot(epochs, np.array(data['loss']), label='Training Loss', marker='.', linewidth=1.5)
-        plt.plot(epochs, np.array(data['val_loss']), label='Validation Loss', marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['loss']), label=self.language[3], marker='.', linewidth=1.5)
+        plt.plot(epochs, np.array(data['val_loss']), label=self.language[4], marker='.', linewidth=1.5)
         plt.legend(loc='upper right')
-        plt.title('Loss')
+        plt.title(self.language[6])
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_training_2.png')  
         plt.clf()      
 
@@ -107,11 +137,11 @@ class Chart:
 
         cm = confusion_matrix(validation, result)
         
-        classes = ["Good", 'Rotten']
+        classes = [self.language[0], self.language[1]]
         normalize = False
 
         plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title("Confused Matrix")
+        plt.title(self.language[10])
         plt.colorbar()
         tick_marks = np.arange(len(classes))
         plt.xticks(tick_marks, classes, rotation=45)
@@ -131,8 +161,8 @@ class Chart:
                 color="white" if cm[i, j] > thresh else "black")
 
         plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
+        plt.ylabel(self.language[7])
+        plt.xlabel(self.language[8])
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_1.png')  
         plt.clf()   
 
@@ -161,7 +191,7 @@ class Chart:
 
         plt.style.use("fivethirtyeight")
 
-        x=["Good", "Rotten", "Average"]      
+        x=[self.language[0], self.language[1], self.language[2]]      
         width=0.25
 
         x_indexes = np.arange(len(x))
@@ -176,7 +206,7 @@ class Chart:
         plt.bar(x_indexes, y_indexes, width=width)
                 
         plt.legend(loc='lower right')
-        plt.title('Precision')
+        plt.title("Real " + self.language[5])
         plt.xticks(ticks=x_indexes, labels=x)
 
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confusion_matrix_2.png')  
@@ -187,9 +217,9 @@ class Chart:
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")       
                     
-        plt.plot(range(len(good)), good, label='Confidence', linewidth=1.0)        
+        plt.plot(range(len(good)), good, label=self.language[9], linewidth=1.0)        
         plt.legend(loc='upper right')
-        plt.title('Good Confidence')  
+        plt.title(self.language[0] + " - " + self.language[9])  
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confidence_1.png')
         plt.clf()
                
@@ -198,9 +228,9 @@ class Chart:
         good, rotten = self._predict_csv()
         plt.style.use("fivethirtyeight")
        
-        plt.plot(range(len(rotten)), rotten, label='Confidence', linewidth=1.0)
+        plt.plot(range(len(rotten)), rotten, label=self.language[9], linewidth=1.0)
         plt.legend(loc='upper right')
-        plt.title('Rotten Confidence')
+        plt.title(self.language[1] + " - " + self.language[9])
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name +'_confidence_2.png')
         plt.clf()
        
@@ -225,7 +255,7 @@ class Chart:
                 average_r = 0
 
         
-        dictlist = ["Good", "Rotten", "Average"]
+        dictlist = [self.language[0], self.language[1], self.language[2]]
         
                     
         x_indexes = np.arange(len(dictlist))
@@ -239,7 +269,7 @@ class Chart:
 
         plt.bar(x_indexes, y_indexes , width=0.5)       
         plt.xticks(ticks=x_indexes, labels=dictlist)
-        plt.title('Confidence Average')
+        plt.title(self.language[11])
         plt.savefig(self.MODEL_DIR + self.model_name + '/'+ self.model_name + '_confidence_3' +'.png')
         plt.clf() 
             
