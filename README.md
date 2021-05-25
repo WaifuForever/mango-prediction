@@ -8,8 +8,10 @@ USEFULL LINKS:
 - https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 - https://www.coursera.org/lecture/introduction-tensorflow/understanding-imagegenerator-kqRHk
 - https://www.jeremyjordan.me/convnet-architectures/
+- https://arxiv.org/pdf/1511.08458.pdf
 - https://www.youtube.com/watch?v=VwVg9jCtqaU&t=1s
 - https://www.youtube.com/watch?v=IubEtS2JAiY&t=690s
+
 
 ABOUT THE CODE:
 
